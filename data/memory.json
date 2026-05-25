@@ -1,0 +1,81 @@
+{
+  "entries": [
+    {
+      "key": "user_name",
+      "value": "Shaya",
+      "category": "person",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "user_role",
+      "value": "Chief and only electrical estimator at Express Electric, Inc.",
+      "category": "person",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "user_company",
+      "value": "Express Electric, Inc.",
+      "category": "person",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "response_style",
+      "value": "Never use dashes. Write at a 5th grade reading level. Keep responses simple and plain. Do not sound like AI.",
+      "category": "preference",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    }
+    ,{
+      "key": "project_types",
+      "value": "Commercial, institutional, and industrial. Some residential but Shaya is usually not involved in those.",
+      "category": "fact",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "estimating_tools",
+      "value": "Accubid Anywhere, Bluebeam, Excel, Word (proposals written in Word, converted to PDF to send to customers).",
+      "category": "fact",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "subflow_hosting",
+      "value": "SubFlow will be hosted online, accessible from any browser. Domain name to be picked later. Hosting: Vercel (free tier, fast CDN). Database: Supabase (PostgreSQL + auth). Tech stack: Next.js 14, Tailwind CSS, Supabase, jsPDF.",
+      "category": "project",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "subflow_project",
+      "value": "SubFlow is an all-in-one web-based estimating and project management platform for subcontractors. Fast loading, login required. Phase 1: manage bid requests, generate RFQ/RFI/proposals. Phase 2: send documents to customers via email (proposals, RFI, RFQ, decline to bid). Phase 3: TBD. Phase 4: create new bid opportunities by forwarding email, full takeoff software. Phase 5: full estimating software. Phase 6+: full project management. Nate is the developer.",
+      "category": "project",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "subflow_name_reason",
+      "value": "Named SubFlow by Nate. Represents the workflow of a subcontractor from first bid request all the way through project completion.",
+      "category": "project",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "proposal_contents",
+      "value": "Header on all pages: project name, address, date, revision number, customer info. Sections: cover letter, price, drawings used, detailed description, clarifications, work not included, price breakdown, terms. Signature on one page only (owner or representative). Initials on every page. Sometimes includes alternates.",
+      "category": "project",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "key": "biggest_pain_points",
+      "value": "Writing the proposal and following up with customers after a bid is sent.",
+      "category": "fact",
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    }
+  ]
+}

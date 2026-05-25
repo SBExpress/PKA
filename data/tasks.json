@@ -1,0 +1,59 @@
+{
+  "tasks": [
+    {
+      "id": "bf291a04",
+      "title": "SubFlow Phase 1: Bid Request Management and Document Generation",
+      "priority": "high",
+      "description": "Build the Phase 1 foundation of SubFlow. Web based, fast loading, login required. Core features: manage incoming bid requests, generate RFQ (Request for Quote), RFI (Request for Information), and full proposals. Proposal must include project name, address, date, revision, customer info, cover letter, price, drawings used, detailed description, clarifications, work not included, price breakdown, terms, alternates (optional), initials on every page, signature on one page.",
+      "status": "in_progress",
+      "due_date": null,
+      "tags": ["subflow", "phase1", "nate"],
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": "cc104f77",
+      "title": "SubFlow Phase 2: Email Delivery",
+      "priority": "medium",
+      "description": "Add ability to send proposals, RFI, RFQ, and decline to bid directly to customers via email from within SubFlow.",
+      "status": "pending",
+      "due_date": null,
+      "tags": ["subflow", "phase2", "nate"],
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": "dd203e88",
+      "title": "SubFlow Phase 4: Email Forwarding for New Bids and Full Takeoff Software",
+      "priority": "low",
+      "description": "Create new bidding opportunities by forwarding an email into SubFlow. Also include a full takeoff software module.",
+      "status": "pending",
+      "due_date": null,
+      "tags": ["subflow", "phase4", "nate"],
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": "ee304d99",
+      "title": "SubFlow Phase 5: Full Estimating Software",
+      "priority": "low",
+      "description": "Build out a full estimating software module inside SubFlow.",
+      "status": "pending",
+      "due_date": null,
+      "tags": ["subflow", "phase5", "nate"],
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": "ff405c10",
+      "title": "SubFlow Phase 6+: Full Project Management",
+      "priority": "low",
+      "description": "Expand SubFlow into a full project management platform for subcontractors.",
+      "status": "pending",
+      "due_date": null,
+      "tags": ["subflow", "phase6", "nate"],
+      "created_at": "2026-05-20T00:00:00Z",
+      "updated_at": "2026-05-20T00:00:00Z"
+    }
+  ]
+}
