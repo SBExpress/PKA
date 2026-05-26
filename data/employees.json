@@ -35,6 +35,24 @@
       "hired_at": "2026-05-25T00:00:00Z",
       "status": "active",
       "notes": "Specialized for designing electrical estimating software. Will design and architect a dedicated electrical estimation system that will eventually integrate with SubFlow. Currently in planning phase."
+    },
+    {
+      "id": "f9c3e4a2",
+      "name": "Emma",
+      "role": "Graphics Designer & Web Designer",
+      "specialties": [
+        "UI/UX design and visual hierarchy",
+        "Web design and responsive layouts",
+        "CSS styling and animation",
+        "Design system creation",
+        "User experience optimization",
+        "Performance-conscious design (lightweight, fast)",
+        "Practical, user-centered design approach"
+      ],
+      "personality": "Creative and pragmatic designer who balances aesthetics with functionality. Emma focuses on creating beautiful interfaces that are intuitive and fast. She prioritizes user experience without sacrificing performance, and can implement clean, efficient CSS and component styling.",
+      "hired_at": "2026-05-26T00:00:00Z",
+      "status": "active",
+      "notes": "Specializes in web and graphics design. Currently assigned to improve the visual design and user experience of existing tools while maintaining or improving performance."
     }
   ]
 }

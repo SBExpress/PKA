@@ -3,1242 +3,1110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BackCalc - Reverse-Engineering Estimating Calculator</title>
+    <title>BackCalc — Reverse Estimating</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ── Design tokens ─────────────────────────────── */
+        :root {
+            --labor:      #4f46e5;
+            --labor-lt:   #eef2ff;
+            --labor-dk:   #312e81;
+            --material:   #7c3aed;
+            --material-lt:#f5f3ff;
+            --material-dk:#4c1d95;
+            --success:    #059669;
+            --warning:    #d97706;
+            --danger:     #dc2626;
+            --radius-sm:  6px;
+            --radius:     12px;
+            --radius-lg:  20px;
+            --shadow-sm:  0 1px 4px rgba(0,0,0,.08);
+            --shadow:     0 4px 20px rgba(0,0,0,.10);
+            --shadow-lg:  0 8px 40px rgba(0,0,0,.15);
+            --transition: .2s ease;
         }
+
+        /* ── Light mode ─────────────────────────────────── */
+        .light {
+            --bg-gradient: linear-gradient(145deg, #1e1b4b 0%, #3b1f7a 55%, #4c1d95 100%);
+            --bg-card:     #ffffff;
+            --bg-input:    #f8f9ff;
+            --bg-section:  #fafbff;
+            --bg-header-bar: rgba(255,255,255,.12);
+            --border:      #e4e7f0;
+            --border-focus:#6366f1;
+            --text:        #1e1b4b;
+            --text-2:      #4b5563;
+            --text-3:      #9ca3af;
+            --text-on-hero:#ffffff;
+            --divider:     #f0f1f8;
+        }
+
+        /* ── Dark mode ──────────────────────────────────── */
+        .dark {
+            --bg-gradient: linear-gradient(145deg, #06040f 0%, #0d0a1e 55%, #150c2e 100%);
+            --bg-card:     #1e1b2e;
+            --bg-input:    #2d2a42;
+            --bg-section:  #252238;
+            --bg-header-bar: rgba(255,255,255,.08);
+            --border:      #3d3a55;
+            --border-focus:#818cf8;
+            --text:        #e0e7ff;
+            --text-2:      #a5b4fc;
+            --text-3:      #6b7280;
+            --text-on-hero:#ffffff;
+            --divider:     #2e2a42;
+        }
+
+        /* ── Reset ──────────────────────────────────────── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        /* Light Mode (Default) */
-        body.light-mode {
-            background-color: #f5f5f5;
-            color: #333;
-        }
-
-        /* Dark Mode */
-        body.dark-mode {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-        }
-
-        .backcalc-container {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            transition: background var(--transition), color var(--transition);
             min-height: 100vh;
-            padding: 20px;
         }
 
-        body.light-mode .backcalc-container {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        body.light { background: var(--bg-gradient); color: var(--text); }
+        body.dark  { background: var(--bg-gradient); color: var(--text); }
+
+        /* ── Page shell ─────────────────────────────────── */
+        .page {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            padding: 0 0 60px;
         }
 
-        body.dark-mode .backcalc-container {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        }
-
-        .backcalc-header {
+        /* ── Hero header ────────────────────────────────── */
+        .hero {
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            padding: 20px;
+            color: var(--text-on-hero);
+            padding: 44px 24px 32px;
         }
 
-        .backcalc-header h1 {
-            font-size: 3em;
-            font-weight: 700;
+        .hero-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(255,255,255,.18);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255,255,255,.3);
+            margin-bottom: 16px;
+        }
+
+        .hero-logo svg { width: 28px; height: 28px; }
+
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1;
             margin-bottom: 8px;
-            letter-spacing: -1px;
         }
 
-        .backcalc-header p {
-            font-size: 1.1em;
-            opacity: 0.95;
+        .hero p {
+            font-size: 1rem;
+            opacity: .82;
+            font-weight: 400;
+            letter-spacing: .01em;
         }
 
-        .backcalc-main {
-            max-width: 1200px;
-            margin: 0 auto;
+        /* ── Toolbar ────────────────────────────────────── */
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-header-bar);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            width: fit-content;
+            margin: 0 auto 28px;
+            border: 1px solid rgba(255,255,255,.18);
         }
 
-        .settings-toggle {
-            margin-bottom: 20px;
-            text-align: right;
+        .toggle-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: .85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.75);
+            transition: all var(--transition);
+            user-select: none;
+            border: 1px solid transparent;
         }
+
+        .toggle-pill:hover { background: rgba(255,255,255,.12); color: white; }
+        .toggle-pill.active { background: rgba(255,255,255,.22); color: white; border-color: rgba(255,255,255,.3); }
+
+        .toggle-pill input[type="checkbox"] { display: none; }
+
+        .toggle-pill .dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,.5);
+            display: flex; align-items: center; justify-content: center;
+            transition: all var(--transition);
+        }
+
+        .toggle-pill.active .dot {
+            background: white;
+            border-color: white;
+        }
+
+        .toggle-pill .dot::after {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--labor);
+            opacity: 0;
+            transition: opacity var(--transition);
+        }
+
+        .toggle-pill.active .dot::after { opacity: 1; }
+
+        .toolbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,.2); }
 
         .settings-btn {
-            background: rgba(255, 255, 255, 0.2);
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,.25);
+            background: rgba(255,255,255,.12);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 10px 16px;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.95em;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            font-size: .85rem;
+            font-weight: 600;
+            transition: all var(--transition);
         }
 
-        .settings-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
+        .settings-btn:hover { background: rgba(255,255,255,.22); }
+        .settings-btn svg { width: 14px; height: 14px; }
+
+        /* ── Main wrapper ───────────────────────────────── */
+        .main { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+        /* ── Card ───────────────────────────────────────── */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 16px;
+            transition: background var(--transition), border-color var(--transition);
         }
 
-        .settings-panel {
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            animation: slideDown 0.3s ease-out;
-        }
+        .card-body { padding: 28px 28px 24px; }
 
-        body.light-mode .settings-panel {
-            background: white;
-            color: #333;
-        }
-
-        body.dark-mode .settings-panel {
-            background: #2a2a3e;
-            color: #e0e0e0;
-        }
+        /* ── Settings panel ─────────────────────────────── */
+        .settings-card { animation: slideDown .25s ease-out; }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .settings-panel h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-        }
-
-        body.light-mode .settings-panel h2 {
-            color: #333;
-        }
-
-        body.dark-mode .settings-panel h2 {
-            color: #e0e0e0;
+        .settings-title {
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--text-3);
+            padding: 18px 28px 0;
         }
 
         .settings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            padding: 16px 28px;
         }
 
-        .setting-group {
+        .settings-actions {
             display: flex;
-            flex-direction: column;
+            gap: 10px;
+            padding: 12px 28px 20px;
+            border-top: 1px solid var(--divider);
         }
 
-        .setting-group label {
+        .btn {
+            padding: 9px 20px;
+            border-radius: var(--radius-sm);
+            font-size: .875rem;
             font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 0.9em;
-        }
-
-        body.light-mode .setting-group label {
-            color: #333;
-        }
-
-        body.dark-mode .setting-group label {
-            color: #b0b0c0;
-        }
-
-        .setting-group input,
-        .setting-group select,
-        .checkbox-label input {
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.95em;
-            transition: border-color 0.2s;
-        }
-
-        body.dark-mode .setting-group input,
-        body.dark-mode .setting-group select,
-        body.dark-mode .checkbox-label input {
-            background-color: #1a1a2e;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        .setting-group input:focus,
-        .setting-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
             cursor: pointer;
-            font-weight: 500;
-        }
-
-        .checkbox-label input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            margin: 0;
-            padding: 0;
-        }
-
-        .settings-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .save-btn, .reset-btn {
-            padding: 12px 24px;
             border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.95em;
+            transition: all var(--transition);
         }
 
-        .save-btn {
-            background: #667eea;
+        .btn-primary {
+            background: var(--labor);
             color: white;
         }
+        .btn-primary:hover { filter: brightness(1.1); }
 
-        .save-btn:hover {
-            background: #5568d3;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        .btn-ghost {
+            background: var(--bg-section);
+            color: var(--text-2);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { background: var(--bg-input); }
+
+        /* ── Section title inside card ──────────────────── */
+        .section-title {
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--text-3);
+            margin-bottom: 18px;
         }
 
-        .reset-btn {
-            background: #f0f0f0;
-            color: #666;
+        /* ── Target price ───────────────────────────────── */
+        .target-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
         }
 
-        body.dark-mode .reset-btn {
-            background: #3a3a4a;
-            color: #b0b0c0;
-        }
+        .target-group { flex: 1; min-width: 200px; }
 
-        .reset-btn:hover {
-            background: #e0e0e0;
-        }
-
-        body.dark-mode .reset-btn:hover {
-            background: #4a4a5a;
-        }
-
-        .calculator-panel {
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        body.light-mode .calculator-panel {
-            background: white;
-            color: #333;
-        }
-
-        body.dark-mode .calculator-panel {
-            background: #2a2a3e;
-            color: #e0e0e0;
-        }
-
-        .input-section h2 {
-            font-size: 1.5em;
-            margin-bottom: 24px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
+        .field-label {
             display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95em;
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text-3);
+            margin-bottom: 7px;
         }
 
-        body.light-mode .input-group label {
-            color: #333;
-        }
-
-        body.dark-mode .input-group label {
-            color: #b0b0c0;
-        }
-
-        .large-input {
+        .input-lg {
             width: 100%;
-            padding: 16px;
-            font-size: 1.3em;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            transition: all 0.2s;
-            font-weight: bold;
-        }
-
-        body.dark-mode .large-input {
-            background-color: #1a1a2e;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        .large-input::placeholder {
-            color: #999;
-        }
-
-        body.dark-mode .large-input::placeholder {
-            color: #666;
-        }
-
-        .large-input:focus {
+            padding: 14px 18px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            border: 2px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text);
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transition: border-color var(--transition), box-shadow var(--transition);
         }
 
-        .target-price-display {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #667eea;
-            margin-top: 8px;
-            padding: 8px 0;
+        .input-lg:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
         }
 
-        body.dark-mode .target-price-display {
-            color: #8ba4f4;
+        .input-lg::placeholder { color: var(--text-3); font-weight: 400; font-size: 1.1rem; }
+
+        .target-badge {
+            padding: 14px 20px;
+            background: var(--bg-section);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--labor);
+            white-space: nowrap;
+            min-width: 160px;
+            text-align: center;
         }
 
-        .split-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border-radius: 8px;
-            background: #f9f9f9;
-        }
+        /* ── Split control ──────────────────────────────── */
+        .split-wrap { margin-bottom: 28px; }
 
-        body.dark-mode .split-section {
-            background: #1a1a2e;
-        }
-
-        .split-labels {
+        .split-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 12px;
-            font-weight: 600;
-            font-size: 0.95em;
         }
 
-        body.light-mode .split-labels {
-            color: #333;
+        .split-tag {
+            font-size: .82rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
         }
 
-        body.dark-mode .split-labels {
-            color: #b0b0c0;
+        .split-tag.labor {
+            background: var(--labor-lt);
+            color: var(--labor);
+        }
+
+        .dark .split-tag.labor {
+            background: rgba(79,70,229,.25);
+            color: #a5b4fc;
+        }
+
+        .split-tag.material {
+            background: var(--material-lt);
+            color: var(--material);
+        }
+
+        .dark .split-tag.material {
+            background: rgba(124,58,237,.25);
+            color: #c4b5fd;
         }
 
         .split-controls {
             display: flex;
-            gap: 12px;
             align-items: center;
+            gap: 10px;
             margin-bottom: 12px;
         }
 
-        .split-button {
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 4px;
-            background: #667eea;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1.2em;
-        }
-
-        .split-button:hover {
-            background: #5568d3;
-        }
-
-        .split-input {
-            width: 80px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.95em;
+        .split-input-sm {
+            width: 64px;
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text);
+            font-size: .9rem;
+            font-weight: 600;
             text-align: center;
+            outline: none;
+        }
+
+        .split-input-sm:focus { border-color: var(--border-focus); }
+
+        .split-btn {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: var(--bg-section);
+            color: var(--text-2);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all var(--transition);
             font-weight: 600;
         }
 
-        body.dark-mode .split-input {
-            background-color: #1a1a2e;
-            border-color: #444;
-            color: #e0e0e0;
-        }
+        .split-btn:hover { border-color: var(--labor); color: var(--labor); }
 
-        .split-slider {
+        .split-label { font-size: .8rem; color: var(--text-3); flex: 1; text-align: center; font-weight: 600; }
+
+        /* ── Range slider ───────────────────────────────── */
+        .slider {
+            -webkit-appearance: none;
             width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, var(--material) 0%, var(--material) calc((100 - var(--split-pct, 50)) * 1%), var(--labor) calc((100 - var(--split-pct, 50)) * 1%), var(--labor) 100%);
             outline: none;
-            -webkit-appearance: none;
-            appearance: none;
+            cursor: pointer;
         }
 
-        .split-slider::-webkit-slider-thumb {
+        .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 20px; height: 20px;
             border-radius: 50%;
             background: white;
+            border: 3px solid var(--labor);
+            box-shadow: var(--shadow);
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            border: 3px solid #667eea;
+            transition: transform .15s;
         }
 
-        .split-slider::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            border: 3px solid #667eea;
-        }
+        .slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
-        .params-grid {
+        /* ── Param columns ──────────────────────────────── */
+        .params-cols {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-            margin-bottom: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--divider);
         }
 
-        body.dark-mode .params-grid {
-            border-top-color: #444;
+        .params-cols > div {
+            border-radius: var(--radius);
+            padding: 18px;
         }
 
-        .param-group {
+        .params-cols > div:first-child {
+            background: rgba(124,58,237,.06);
+            border: 1.5px solid rgba(124,58,237,.18);
+        }
+
+        .dark .params-cols > div:first-child {
+            background: rgba(124,58,237,.12);
+            border-color: rgba(124,58,237,.28);
+        }
+
+        .params-cols > div:last-child {
+            background: rgba(79,70,229,.06);
+            border: 1.5px solid rgba(79,70,229,.18);
+        }
+
+        .dark .params-cols > div:last-child {
+            background: rgba(79,70,229,.12);
+            border-color: rgba(79,70,229,.28);
+        }
+
+        .param-col-head {
             display: flex;
-            flex-direction: column;
-        }
-
-        .param-group label {
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 0.85em;
-        }
-
-        body.light-mode .param-group label {
-            color: #333;
-        }
-
-        body.dark-mode .param-group label {
-            color: #b0b0c0;
-        }
-
-        .param-group input,
-        .param-group select {
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        body.dark-mode .param-group input,
-        body.dark-mode .param-group select {
-            background-color: #1a1a2e;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        .param-group input:focus,
-        .param-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .results-section {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #f0f0f0;
-        }
-
-        body.dark-mode .results-section {
-            border-top-color: #444;
-        }
-
-        .results-section h2 {
-            font-size: 1.5em;
-            margin-bottom: 24px;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .breakdown-card {
-            border-radius: 6px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        body.light-mode .breakdown-card {
-            background: #f9f9f9;
-        }
-
-        body.dark-mode .breakdown-card {
-            background: #1a1a2e;
-        }
-
-        .breakdown-card.material-card {
-            border-left: 4px solid #764ba2;
-        }
-
-        .breakdown-card.labor-card {
-            border-left: 4px solid #667eea;
-        }
-
-        .breakdown-card h3 {
-            font-size: 1.2em;
+            align-items: center;
+            gap: 8px;
+            font-size: .72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            padding-bottom: 12px;
+            border-bottom: 2px solid;
             margin-bottom: 16px;
         }
 
-        body.light-mode .breakdown-card h3 {
-            color: #333;
+        .param-col-head.lh { color: var(--labor); border-color: var(--labor); }
+        .param-col-head.mh { color: var(--material); border-color: var(--material); }
+
+        .param-col-head svg { width: 13px; height: 13px; }
+
+        .param-fields { display: flex; flex-direction: column; gap: 14px; }
+
+        .field { display: flex; flex-direction: column; gap: 5px; }
+
+        .field label {
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: .06em;
         }
 
-        body.dark-mode .breakdown-card h3 {
-            color: #e0e0e0;
+        .field input, .field select {
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text);
+            font-size: .9rem;
+            font-weight: 500;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
         }
+
+        .field input:focus, .field select:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+        }
+
+        .field input:disabled, .field select:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        /* ── Empty state ────────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-3);
+            font-size: .95rem;
+        }
+
+        .empty-state svg {
+            width: 40px; height: 40px;
+            margin-bottom: 12px;
+            opacity: .35;
+        }
+
+        /* ── Results ────────────────────────────────────── */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .result-card {
+            border-radius: var(--radius);
+            border: 1.5px solid var(--border);
+            background: var(--bg-card);
+            overflow: hidden;
+        }
+
+        .result-card-head {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+        }
+
+        .result-card-head svg { width: 14px; height: 14px; }
+
+        .labor-card .result-card-head {
+            background: var(--labor-lt);
+            color: var(--labor);
+            border-bottom: 1.5px solid rgba(79,70,229,.15);
+        }
+
+        .dark .labor-card .result-card-head {
+            background: rgba(79,70,229,.2);
+            color: #a5b4fc;
+            border-bottom-color: rgba(79,70,229,.3);
+        }
+
+        .material-card .result-card-head {
+            background: var(--material-lt);
+            color: var(--material);
+            border-bottom: 1.5px solid rgba(124,58,237,.15);
+        }
+
+        .dark .material-card .result-card-head {
+            background: rgba(124,58,237,.2);
+            color: #c4b5fd;
+            border-bottom-color: rgba(124,58,237,.3);
+        }
+
+        .result-rows { padding: 6px 0; }
 
         .result-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            font-size: 0.95em;
-            border-bottom: 1px solid #eee;
+            align-items: center;
+            padding: 8px 18px;
+            font-size: .88rem;
         }
 
-        body.dark-mode .result-row {
-            border-bottom-color: #444;
+        .result-row .rl { color: var(--text-2); }
+        .result-row .rv { color: var(--text); font-weight: 500; }
+
+        .result-row.key-row {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            margin: 10px 12px 4px;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
         }
 
-        .result-row:last-child {
-            border-bottom: none;
-        }
+        .labor-card .result-row.key-row   { border-color: var(--labor); }
+        .material-card .result-row.key-row { border-color: var(--material); }
 
-        .result-row span {
-            color: #666;
-        }
+        .result-row.key-row .rl { font-weight: 700; color: var(--text); font-size: 1rem; }
 
-        body.dark-mode .result-row span {
-            color: #a0a0b0;
-        }
+        .labor-card .result-row.key-row .rv   { color: var(--labor);    font-weight: 800; font-size: 1.15rem; }
+        .material-card .result-row.key-row .rv { color: var(--material); font-weight: 800; font-size: 1.15rem; }
 
-        .result-row strong {
-            font-weight: 600;
-        }
-
-        body.light-mode .result-row strong {
-            color: #333;
-        }
-
-        body.dark-mode .result-row strong {
-            color: #e0e0e0;
-        }
-
-        .result-row.highlight {
-            background: linear-gradient(90deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
-            border-radius: 4px;
-            padding: 12px !important;
-            margin: 8px 0;
-            border: 2px solid #667eea !important;
+        .result-row.subtotal-row {
+            border-top: 1px solid var(--divider);
+            margin-top: 4px;
             font-weight: 700;
         }
 
-        body.dark-mode .result-row.highlight {
-            background: linear-gradient(90deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.25));
+        .result-row.subtotal-row .rv { font-size: 1rem; font-weight: 800; }
+
+        /* ── Combined total card ─────────────────────────── */
+        .total-card {
+            border-radius: var(--radius);
+            background: var(--bg-section);
+            border: 1.5px solid var(--border);
+            padding: 20px 24px;
         }
 
-        .result-row.highlight strong {
-            color: #667eea;
-            font-size: 1.15em;
-        }
+        .total-rows { display: flex; flex-direction: column; gap: 10px; }
 
-        body.dark-mode .result-row.highlight strong {
-            color: #8ba4f4;
-        }
-
-        .result-row.total {
-            padding-top: 12px;
-            margin-top: 8px;
-            border-top: 2px solid #ddd;
-            font-weight: 600;
-        }
-
-        body.dark-mode .result-row.total {
-            border-top-color: #444;
-        }
-
-        .combined-total {
-            border-radius: 8px;
-            padding: 24px;
-            margin-top: 24px;
-        }
-
-        body.light-mode .combined-total {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border: 2px solid #667eea;
-        }
-
-        body.dark-mode .combined-total {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-            border: 2px solid #667eea;
-        }
-
-        .total-row, .target-row {
+        .total-line {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            font-size: 1.1em;
-            font-weight: 600;
+            align-items: center;
+            font-size: 1rem;
         }
 
-        body.light-mode .total-row span,
-        body.light-mode .target-row span {
-            color: #333;
-        }
+        .total-line .tl { font-weight: 600; color: var(--text-2); }
+        .total-line .tv { font-size: 1.35rem; font-weight: 800; }
 
-        body.dark-mode .total-row span,
-        body.dark-mode .target-row span {
-            color: #b0b0c0;
-        }
+        .tv.match   { color: var(--success); }
+        .tv.mismatch { color: var(--danger); }
+        .tv.neutral { color: var(--text); }
 
-        .total-row strong, .target-row strong {
-            color: #667eea;
-            font-size: 1.2em;
-        }
-
-        body.dark-mode .total-row strong,
-        body.dark-mode .target-row strong {
-            color: #8ba4f4;
-        }
-
-        .total-row strong.match {
-            color: #27ae60;
-        }
-
-        .total-row strong.mismatch {
-            color: #e74c3c;
-        }
-
-        .warning {
-            margin-top: 12px;
-            padding: 10px 12px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        body.light-mode .warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        body.dark-mode .warning {
-            background: #3a3a2a;
-            color: #d4af37;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            font-size: 1.1em;
-        }
-
-        body.light-mode .empty-state {
-            color: #999;
-        }
-
-        body.dark-mode .empty-state {
-            color: #666;
-        }
-
-        .backcalc-footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.85em;
-            margin-top: 40px;
-        }
-
-        body.light-mode .backcalc-footer {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        body.dark-mode .backcalc-footer {
-            color: rgba(200, 200, 220, 0.7);
-        }
-
-        .logo {
-            width: 48px;
-            height: 48px;
-            margin-right: 12px;
-            vertical-align: middle;
-        }
-
-        .header-content {
+        .mismatch-warn {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            color: #92400e;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 6px;
         }
 
-        @media (max-width: 768px) {
-            .backcalc-container {
-                padding: 10px;
-            }
+        .dark .mismatch-warn {
+            background: rgba(251,191,36,.1);
+            border-color: rgba(251,191,36,.3);
+            color: #fcd34d;
+        }
 
-            .backcalc-header {
-                padding: 15px 10px;
-                margin-bottom: 20px;
-            }
+        .total-divider { height: 1px; background: var(--divider); }
 
-            .backcalc-header h1 {
-                font-size: 1.8em;
-                margin-bottom: 5px;
-            }
+        /* ── Form fields (settings & params) ─────────────── */
+        .setting-field { display: flex; flex-direction: column; gap: 5px; }
 
-            .backcalc-header p {
-                font-size: 0.9em;
-            }
+        .setting-field label {
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
 
-            .header-content {
-                flex-direction: column;
-            }
+        .setting-field input, .setting-field select {
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text);
+            font-size: .9rem;
+            outline: none;
+            transition: border-color var(--transition);
+        }
 
-            .logo {
-                margin-right: 0;
-                margin-bottom: 10px;
-            }
+        .setting-field input:focus, .setting-field select:focus {
+            border-color: var(--border-focus);
+        }
 
-            .calculator-panel {
-                padding: 15px;
-            }
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--text-2);
+            cursor: pointer;
+            padding: 9px 0;
+        }
 
-            .settings-panel {
-                padding: 15px;
-            }
+        .checkbox-field input { width: 16px; height: 16px; accent-color: var(--labor); cursor: pointer; }
 
-            .settings-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
+        /* ── Footer ─────────────────────────────────────── */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,.45);
+            font-size: .75rem;
+            margin-top: 32px;
+            padding: 0 20px;
+            letter-spacing: .03em;
+        }
 
-            .params-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .results-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .large-input,
-            .param-group input,
-            .param-group select,
-            .setting-group input,
-            .setting-group select {
-                padding: 12px 14px;
-                font-size: 16px;
-            }
-
-            .save-btn,
-            .reset-btn,
-            .settings-btn {
-                padding: 14px 18px;
-                font-size: 1em;
-                min-height: 48px;
-            }
-
-            .settings-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .save-btn,
-            .reset-btn {
-                width: 100%;
-            }
-
-            .split-slider {
-                height: 10px;
-            }
-
-            .split-slider::-webkit-slider-thumb {
-                width: 28px;
-                height: 28px;
-            }
-
-            .split-slider::-moz-range-thumb {
-                width: 28px;
-                height: 28px;
-            }
-
-            .breakdown-card {
-                padding: 16px;
-            }
-
-            .result-row {
-                padding: 10px 0;
-                font-size: 1em;
-            }
-
-            .result-row.highlight {
-                padding: 14px;
-                margin: 10px 0;
-            }
-
-            .combined-total {
-                padding: 16px;
-            }
-
-            .total-row,
-            .target-row {
-                padding: 12px 0;
-                font-size: 1.05em;
-            }
-
-            .total-row strong,
-            .target-row strong {
-                font-size: 1.15em;
-            }
-
-            .backcalc-footer {
-                margin-top: 20px;
-                padding: 15px;
-                font-size: 0.8em;
-            }
-
-            .split-controls {
-                flex-wrap: wrap;
-            }
+        /* ── Responsive ─────────────────────────────────── */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .params-cols { grid-template-columns: 1fr; gap: 20px; }
+            .results-grid { grid-template-columns: 1fr; }
+            .target-row { flex-direction: column; }
+            .target-badge { width: 100%; min-width: unset; }
+            .card-body { padding: 20px 18px 18px; }
         }
     </style>
 </head>
-<body class="light-mode">
-    <div id="root"></div>
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+<body class="light">
+<div id="root"></div>
+<script type="text/babel">
+    const { useState, useEffect } = React;
 
-        function BackCalc() {
-            const [targetPrice, setTargetPrice] = useState('');
-            const [laborSplit, setLaborSplit] = useState(50);
-            const [laborRate, setLaborRate] = useState('');
-            const [laborOH, setLaborOH] = useState('');
-            const [laborProfit, setLaborProfit] = useState('');
-            const [materialAdj, setMaterialAdj] = useState('');
-            const [materialOH, setMaterialOH] = useState('');
-            const [materialProfit, setMaterialProfit] = useState('');
-            const [materialTax, setMaterialTax] = useState('');
-            const [includeTax, setIncludeTax] = useState(false);
-            const [taxBasis, setTaxBasis] = useState('raw');
-            const [showSettings, setShowSettings] = useState(false);
-            const [darkMode, setDarkMode] = useState(false);
+    const IconHammer = () => (
+        <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M9.5 1.5a.5.5 0 0 1 .707 0l4.242 4.243a.5.5 0 0 1 0 .707L12.5 8.4l-1.06-1.06 1.59-1.59L9.5 2.56 7.91 4.15 6.85 3.09 9.5 1.5zM1.5 9.5l5-5 1.06 1.06-5 5L1.5 9.5zm1.06 2.12 3.88-3.88 1.06 1.06-3.88 3.88-1.06-1.06z"/>
+        </svg>
+    );
 
-            useEffect(() => {
-                const saved = localStorage.getItem('backCalcSettings');
-                if (saved) {
-                    try {
-                        const settings = JSON.parse(saved);
-                        if (settings.laborRate) setLaborRate(settings.laborRate);
-                        if (settings.laborOH) setLaborOH(settings.laborOH);
-                        if (settings.laborProfit) setLaborProfit(settings.laborProfit);
-                        if (settings.materialAdj) setMaterialAdj(settings.materialAdj);
-                        if (settings.materialOH) setMaterialOH(settings.materialOH);
-                        if (settings.materialProfit) setMaterialProfit(settings.materialProfit);
-                        if (settings.materialTax) setMaterialTax(settings.materialTax);
-                        if (settings.taxBasis) setTaxBasis(settings.taxBasis);
-                        if (settings.laborSplit !== undefined) setLaborSplit(settings.laborSplit);
-                        if (settings.includeTax !== undefined) setIncludeTax(settings.includeTax);
-                        if (settings.darkMode !== undefined) setDarkMode(settings.darkMode);
-                    } catch (e) {
-                        console.error('Failed to load settings', e);
-                    }
-                }
-            }, []);
+    const IconBox = () => (
+        <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5 8.186 1.113zM15 4.43l-6.5 2.788v7.117l6.5-2.978V4.43zm-7.5 9.905V7.218L1 4.43v6.927l6.5 2.978z"/>
+        </svg>
+    );
 
-            useEffect(() => {
-                document.body.className = darkMode ? 'dark-mode' : 'light-mode';
-            }, [darkMode]);
+    const IconGear = () => (
+        <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.474l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+        </svg>
+    );
 
-            const calculate = () => {
-                const target = parseFloat(targetPrice) || 0;
-                if (target <= 0) return null;
+    function BackCalc() {
+        const [targetPrice, setTargetPrice]   = useState('');
+        const [laborSplit,  setLaborSplit]     = useState(50);
+        const [laborRate,   setLaborRate]      = useState('');
+        const [laborOH,     setLaborOH]        = useState('');
+        const [laborProfit, setLaborProfit]    = useState('');
+        const [materialAdj, setMaterialAdj]    = useState('');
+        const [materialOH,  setMaterialOH]     = useState('');
+        const [materialProfit, setMaterialProfit] = useState('');
+        const [materialTax, setMaterialTax]    = useState('');
+        const [includeTax,  setIncludeTax]     = useState(true);
+        const [taxBasis,    setTaxBasis]       = useState('raw');
+        const [showSettings,setShowSettings]   = useState(false);
+        const [darkMode,    setDarkMode]       = useState(false);
 
-                const lSplit = laborSplit / 100;
-                const mSplit = 1 - lSplit;
+        // Load persisted settings
+        useEffect(() => {
+            const saved = localStorage.getItem('backCalcSettings');
+            if (saved) {
+                try {
+                    const s = JSON.parse(saved);
+                    if (s.laborRate)    setLaborRate(s.laborRate);
+                    if (s.laborOH)      setLaborOH(s.laborOH);
+                    if (s.laborProfit)  setLaborProfit(s.laborProfit);
+                    if (s.materialAdj)  setMaterialAdj(s.materialAdj);
+                    if (s.materialOH)   setMaterialOH(s.materialOH);
+                    if (s.materialProfit) setMaterialProfit(s.materialProfit);
+                    if (s.materialTax)  setMaterialTax(s.materialTax);
+                    if (s.taxBasis)     setTaxBasis(s.taxBasis);
+                    if (s.laborSplit !== undefined) setLaborSplit(s.laborSplit);
+                    if (s.includeTax !== undefined) setIncludeTax(s.includeTax);
+                    if (s.darkMode   !== undefined) setDarkMode(s.darkMode);
+                } catch(e) {}
+            }
+        }, []);
 
-                const laborPortion = target * lSplit;
-                const materialPortion = target * mSplit;
+        // Sync dark mode to body class
+        useEffect(() => {
+            document.body.className = darkMode ? 'dark' : 'light';
+        }, [darkMode]);
 
-                const lRate = parseFloat(laborRate) || 0;
-                const lOH = (parseFloat(laborOH) || 0) / 100;
-                const lProfit = (parseFloat(laborProfit) || 0) / 100;
-                const mAdj = (parseFloat(materialAdj) || 0) / 100;
-                const mOH = (parseFloat(materialOH) || 0) / 100;
-                const mProfit = (parseFloat(materialProfit) || 0) / 100;
-                const mTax = includeTax ? (parseFloat(materialTax) || 0) / 100 : 0;
+        // ── Calculation logic ──────────────────────────
+        const calculate = () => {
+            const target = parseFloat(targetPrice) || 0;
+            if (target <= 0) return null;
 
-                // Labor: reverse-engineer hours
-                let rawLaborCost = 0;
-                if (lRate > 0) {
-                    rawLaborCost = laborPortion / (1 + lProfit) / (1 + lOH);
-                }
-                const laborHours = lRate > 0 ? rawLaborCost / lRate : 0;
-                const laborOHAmount = rawLaborCost * lOH;
-                const laborProfitAmount = (rawLaborCost + laborOHAmount) * lProfit;
-                const laborSubtotal = rawLaborCost + laborOHAmount + laborProfitAmount;
+            const lSplit = laborSplit / 100;
+            const laborPortion    = target * lSplit;
+            const materialPortion = target * (1 - lSplit);
 
-                // Material: reverse-engineer raw cost
-                let rawMaterialCost = 0;
-                let materialTaxAmount = 0;
+            const lRate   = parseFloat(laborRate)    || 0;
+            const lOH     = (parseFloat(laborOH)     || 0) / 100;
+            const lProfit = (parseFloat(laborProfit)  || 0) / 100;
+            const mAdj    = (parseFloat(materialAdj)  || 0) / 100;
+            const mOH     = (parseFloat(materialOH)   || 0) / 100;
+            const mProfit = (parseFloat(materialProfit)|| 0) / 100;
+            const mTax    = includeTax ? (parseFloat(materialTax) || 0) / 100 : 0;
 
-                if (includeTax && mTax > 0) {
-                    if (taxBasis === 'raw') {
-                        // Tax on raw + adjustment only
-                        // materialPortion = raw * (1 + adj%) * (1 + OH%) * (1 + Profit%) + raw * (1 + adj%) * Tax%
-                        // materialPortion = raw * (1 + adj%) * [((1 + OH%) * (1 + Profit%)) + Tax%]
-                        const divisor = (1 + mAdj) * ((1 + mOH) * (1 + mProfit) + mTax);
-                        rawMaterialCost = materialPortion / divisor;
-                    } else {
-                        // Tax on full (raw + adj + OH + profit)
-                        // materialPortion = raw * (1 + adj%) * (1 + OH%) * (1 + Profit%) * (1 + Tax%)
-                        const divisor = (1 + mAdj) * (1 + mOH) * (1 + mProfit) * (1 + mTax);
-                        rawMaterialCost = materialPortion / divisor;
-                    }
+            // Labor reverse-engineer
+            let rawLaborCost = 0;
+            if (lRate > 0) rawLaborCost = laborPortion / (1 + lProfit) / (1 + lOH);
+            const laborHours       = lRate > 0 ? rawLaborCost / lRate : 0;
+            const laborOHAmount    = rawLaborCost * lOH;
+            const laborProfitAmt   = (rawLaborCost + laborOHAmount) * lProfit;
+            const laborSubtotal    = rawLaborCost + laborOHAmount + laborProfitAmt;
+
+            // Material reverse-engineer
+            let rawMaterialCost = 0;
+            let materialTaxAmt  = 0;
+
+            if (includeTax && mTax > 0) {
+                if (taxBasis === 'raw') {
+                    rawMaterialCost = materialPortion / ((1 + mAdj) * ((1 + mOH) * (1 + mProfit) + mTax));
                 } else {
-                    // No tax
-                    rawMaterialCost = materialPortion / ((1 + mAdj) * (1 + mOH) * (1 + mProfit));
+                    rawMaterialCost = materialPortion / ((1 + mAdj) * (1 + mOH) * (1 + mProfit) * (1 + mTax));
                 }
+            } else {
+                rawMaterialCost = materialPortion / ((1 + mAdj) * (1 + mOH) * (1 + mProfit));
+            }
 
-                const materialAdjAmount = rawMaterialCost * mAdj;
-                const adjustedMaterial = rawMaterialCost + materialAdjAmount;
-                const materialOHAmount = adjustedMaterial * mOH;
-                const materialProfitAmount = (adjustedMaterial + materialOHAmount) * mProfit;
-                const materialSubtotalBeforeTax = adjustedMaterial + materialOHAmount + materialProfitAmount;
+            const materialAdjAmt    = rawMaterialCost * mAdj;
+            const adjustedMaterial  = rawMaterialCost + materialAdjAmt;
+            const materialOHAmt     = adjustedMaterial * mOH;
+            const materialProfitAmt = (adjustedMaterial + materialOHAmt) * mProfit;
+            const materialSubtotal  = adjustedMaterial + materialOHAmt + materialProfitAmt;
 
-                if (includeTax && mTax > 0) {
-                    if (taxBasis === 'raw') {
-                        // Tax only on raw + adjustment
-                        materialTaxAmount = adjustedMaterial * mTax;
-                    } else {
-                        // Tax on full subtotal
-                        materialTaxAmount = materialSubtotalBeforeTax * mTax;
-                    }
-                }
+            if (includeTax && mTax > 0) {
+                materialTaxAmt = taxBasis === 'raw'
+                    ? adjustedMaterial * mTax
+                    : materialSubtotal  * mTax;
+            }
 
-                const materialTotal = materialSubtotalBeforeTax + materialTaxAmount;
-                const combinedTotal = laborSubtotal + materialTotal;
+            const materialTotal  = materialSubtotal + materialTaxAmt;
+            const combinedTotal  = laborSubtotal + materialTotal;
+            const r = (n) => Math.round(n * 100) / 100;
 
-                const round = (num) => Math.round(num * 100) / 100;
-
-                return {
-                    laborHours: round(laborHours),
-                    rawLaborCost: round(rawLaborCost),
-                    laborOHAmount: round(laborOHAmount),
-                    laborProfitAmount: round(laborProfitAmount),
-                    laborSubtotal: round(laborSubtotal),
-                    rawMaterialCost: round(rawMaterialCost),
-                    materialAdjAmount: round(materialAdjAmount),
-                    materialOHAmount: round(materialOHAmount),
-                    materialProfitAmount: round(materialProfitAmount),
-                    materialSubtotal: round(materialSubtotalBeforeTax),
-                    materialTaxAmount: round(materialTaxAmount),
-                    materialTotal: round(materialTotal),
-                    combinedTotal: round(combinedTotal),
-                };
+            return {
+                laborHours:       r(laborHours),
+                rawLaborCost:     r(rawLaborCost),
+                laborOHAmount:    r(laborOHAmount),
+                laborProfitAmt:   r(laborProfitAmt),
+                laborSubtotal:    r(laborSubtotal),
+                rawMaterialCost:  r(rawMaterialCost),
+                materialAdjAmt:   r(materialAdjAmt),
+                materialOHAmt:    r(materialOHAmt),
+                materialProfitAmt:r(materialProfitAmt),
+                materialSubtotal: r(materialSubtotal),
+                materialTaxAmt:   r(materialTaxAmt),
+                materialTotal:    r(materialTotal),
+                combinedTotal:    r(combinedTotal),
             };
+        };
 
-            const formatCurrency = (num) => `$${(num || 0).toFixed(2)}`;
-            const formatHours = (num) => (num || 0).toFixed(2);
-            const formatDisplay = (val) => val === '' || val === undefined ? '0' : val;
+        const fmt$  = (n) => `$${(n||0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        const fmtHr = (n) => {
+            const v = parseFloat(n) || 0;
+            if (v === 0) return '—';
+            return `${v.toFixed(2)} hrs`;
+        };
+        const results = calculate();
 
-            const results = calculate();
+        const handleSave = () => {
+            localStorage.setItem('backCalcSettings', JSON.stringify({
+                laborRate, laborOH, laborProfit,
+                materialAdj, materialOH, materialProfit, materialTax,
+                taxBasis, laborSplit, includeTax, darkMode,
+            }));
+            setShowSettings(false);
+        };
 
-            const handleSaveSettings = () => {
-                const settings = {
-                    laborRate, laborOH, laborProfit, materialAdj, materialOH, materialProfit, materialTax, taxBasis, laborSplit, includeTax, darkMode,
-                };
-                localStorage.setItem('backCalcSettings', JSON.stringify(settings));
-                setShowSettings(false);
-            };
+        const handleReset = () => {
+            if (!window.confirm('Clear all saved settings?')) return;
+            localStorage.removeItem('backCalcSettings');
+            setLaborRate(''); setLaborOH(''); setLaborProfit('');
+            setMaterialAdj(''); setMaterialOH(''); setMaterialProfit('');
+            setMaterialTax(''); setTaxBasis('raw');
+            setLaborSplit(50); setIncludeTax(true);
+            setTargetPrice(''); setDarkMode(false);
+        };
 
-            const handleResetSettings = () => {
-                if (window.confirm('Clear all saved settings?')) {
-                    localStorage.removeItem('backCalcSettings');
-                    setLaborRate('');
-                    setLaborOH('');
-                    setLaborProfit('');
-                    setMaterialAdj('');
-                    setMaterialOH('');
-                    setMaterialProfit('');
-                    setMaterialTax('');
-                    setIncludeTax(false);
-                    setTaxBasis('raw');
-                    setLaborSplit(50);
-                    setTargetPrice('');
-                    setDarkMode(false);
-                }
-            };
+        const adjustSplit = (d) => setLaborSplit(v => Math.max(0, Math.min(100, v + d)));
 
-            const adjustSplit = (delta) => {
-                const newSplit = Math.max(0, Math.min(100, laborSplit + delta));
-                setLaborSplit(newSplit);
-            };
+        const target = parseFloat(targetPrice) || 0;
+        const diff   = results ? Math.abs(results.combinedTotal - Math.round(target * 100) / 100) : 0;
 
-            return (
-                <div className="backcalc-container">
-                    <header className="backcalc-header">
-                        <div className="header-content">
-                            <svg className="logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="24" cy="24" r="22" stroke="white" strokeWidth="2"/>
-                                <path d="M24 12V36M12 24H36" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                                <path d="M32 16L16 32M16 16L32 32" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.5"/>
-                            </svg>
-                            <div>
-                                <h1>BackCalc</h1>
-                                <p>Reverse-engineer labor hours and material costs from target price</p>
+        return (
+            <div className="page">
+                {/* ── Hero ───────────────────────────────── */}
+                <header className="hero">
+                    <div className="hero-logo">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+                            <circle cx="14" cy="14" r="11"/>
+                            <path d="M14 8v12M8 14h12"/>
+                            <path d="M18 10l-8 8M10 10l8 8" strokeOpacity=".5"/>
+                        </svg>
+                    </div>
+                    <h1>BackCalc</h1>
+                    <p>Reverse-engineer labor hours &amp; material costs from a target price</p>
+                </header>
+
+                {/* ── Toolbar ─────────────────────────────── */}
+                <div className="toolbar">
+                    <label className={`toggle-pill ${darkMode ? 'active' : ''}`}>
+                        <input type="checkbox" checked={darkMode} onChange={e => setDarkMode(e.target.checked)}/>
+                        <span className="dot"/>
+                        Dark
+                    </label>
+                    <div className="toolbar-sep"/>
+                    <button className="settings-btn" onClick={() => setShowSettings(s => !s)}>
+                        <IconGear/> {showSettings ? 'Close' : 'Settings'}
+                    </button>
+                </div>
+
+                <div className="main">
+
+                    {/* ── Settings panel ──────────────────── */}
+                    {showSettings && (
+                        <div className="card settings-card">
+                            <div className="settings-title">Default Settings</div>
+                            <div className="settings-grid">
+                                <div className="setting-field"><label>Labor Rate ($/hr)</label><input type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)} placeholder=""/></div>
+                                <div className="setting-field"><label>Labor Overhead %</label><input type="number" value={laborOH} onChange={e => setLaborOH(e.target.value)} placeholder=""/></div>
+                                <div className="setting-field"><label>Labor Profit %</label><input type="number" value={laborProfit} onChange={e => setLaborProfit(e.target.value)} placeholder=""/></div>
+                                <div className="setting-field"><label>Material Adjustment %</label><input type="number" value={materialAdj} onChange={e => setMaterialAdj(e.target.value)} placeholder=""/></div>
+                                <div className="setting-field"><label>Material Overhead %</label><input type="number" value={materialOH} onChange={e => setMaterialOH(e.target.value)} placeholder=""/></div>
+                                <div className="setting-field"><label>Material Profit %</label><input type="number" value={materialProfit} onChange={e => setMaterialProfit(e.target.value)} placeholder=""/></div>
+                                <div className="setting-field"><label>Material Tax %</label><input type="number" value={materialTax} onChange={e => setMaterialTax(e.target.value)} placeholder="" disabled={!includeTax}/></div>
+                                <div className="setting-field">
+                                    <label>Tax Basis</label>
+                                    <select value={taxBasis} onChange={e => setTaxBasis(e.target.value)} disabled={!includeTax}>
+                                        <option value="raw">Tax on raw + adjustment</option>
+                                        <option value="full">Tax on full subtotal</option>
+                                    </select>
+                                </div>
+                                <div className="setting-field"><label>Default Labor Split %</label><input type="number" min="0" max="100" value={laborSplit} onChange={e => setLaborSplit(Math.max(0, Math.min(100, parseFloat(e.target.value)||0)))}/></div>
+                            </div>
+                            <div className="settings-actions">
+                                <button className="btn btn-primary" onClick={handleSave}>Save &amp; Close</button>
+                                <button className="btn btn-ghost"   onClick={handleReset}>Reset Defaults</button>
                             </div>
                         </div>
-                    </header>
+                    )}
 
-                    <div className="backcalc-main">
-                        <div className="settings-toggle">
-                            <div style={{display: 'flex', gap: '12px', justifyContent: 'flex-end', flexWrap: 'wrap', marginBottom: '15px'}}>
-                                <label className="checkbox-label" style={{color: 'white', margin: 0}}>
-                                    <input type="checkbox" checked={includeTax} onChange={(e) => setIncludeTax(e.target.checked)} />
-                                    Tax
-                                </label>
-                                <label className="checkbox-label" style={{color: 'white', margin: 0}}>
-                                    <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} />
-                                    Dark
-                                </label>
-                                <button onClick={() => setShowSettings(!showSettings)} className="settings-btn">
-                                    ⚙️ {showSettings ? 'Hide' : 'Settings'}
-                                </button>
+                    {/* ── Main calculator card ─────────────── */}
+                    <div className="card">
+                        <div className="card-body">
+                            <div className="section-title">Target Price &amp; Split</div>
+
+                            {/* Target price */}
+                            <div className="target-row">
+                                <div className="target-group">
+                                    <label className="field-label">Target Price ($)</label>
+                                    <input
+                                        className="input-lg"
+                                        type="number"
+                                        value={targetPrice}
+                                        onChange={e => setTargetPrice(e.target.value)}
+                                        placeholder=""
+                                    />
+                                </div>
+                                {targetPrice && (
+                                    <div className="target-badge">{fmt$(target)}</div>
+                                )}
                             </div>
-                        </div>
 
-                        {showSettings && (
-                            <div className="settings-panel">
-                                <h2>Settings</h2>
-                                <div className="settings-grid">
-                                    <div className="setting-group">
-                                        <label>Labor Rate ($/hr)</label>
-                                        <input type="number" value={laborRate} onChange={(e) => setLaborRate(e.target.value)} placeholder="50" />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Labor Overhead %</label>
-                                        <input type="number" value={laborOH} onChange={(e) => setLaborOH(e.target.value)} placeholder="25" />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Labor Profit %</label>
-                                        <input type="number" value={laborProfit} onChange={(e) => setLaborProfit(e.target.value)} placeholder="20" />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Material Adjustment %</label>
-                                        <input type="number" value={materialAdj} onChange={(e) => setMaterialAdj(e.target.value)} placeholder="0" />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Material Overhead %</label>
-                                        <input type="number" value={materialOH} onChange={(e) => setMaterialOH(e.target.value)} placeholder="15" />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Material Profit %</label>
-                                        <input type="number" value={materialProfit} onChange={(e) => setMaterialProfit(e.target.value)} placeholder="25" />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Material Tax %</label>
-                                        <input type="number" value={materialTax} onChange={(e) => setMaterialTax(e.target.value)} placeholder="0" disabled={!includeTax} />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Tax Basis</label>
-                                        <select value={taxBasis} onChange={(e) => setTaxBasis(e.target.value)} disabled={!includeTax}>
-                                            <option value="raw">Tax on raw material only</option>
-                                            <option value="full">Tax on material + OH + profit</option>
-                                        </select>
-                                    </div>
-                                    <div className="setting-group">
-                                        <label>Default Material/Labor Split (%)</label>
-                                        <input type="number" min="0" max="100" value={laborSplit} onChange={(e) => setLaborSplit(Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)))} />
-                                    </div>
-                                    <div className="setting-group">
-                                        <label className="checkbox-label">
-                                            <input type="checkbox" checked={includeTax} onChange={(e) => setIncludeTax(e.target.checked)} />
-                                            Include Tax
-                                        </label>
-                                    </div>
-                                    <div className="setting-group">
-                                        <label className="checkbox-label">
-                                            <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} />
-                                            Dark Mode
-                                        </label>
-                                    </div>
+                            {/* Split */}
+                            <div className="split-wrap">
+                                <div className="split-header">
+                                    <span className="split-tag material">Material: {100 - laborSplit}%</span>
+                                    <span className="split-tag labor">Labor: {laborSplit}%</span>
                                 </div>
-                                <div className="settings-buttons">
-                                    <button onClick={handleSaveSettings} className="save-btn">Save Settings</button>
-                                    <button onClick={handleResetSettings} className="reset-btn">Reset to Defaults</button>
+                                <div className="split-controls">
+                                    <input
+                                        type="number" min="0" max="100"
+                                        className="split-input-sm"
+                                        value={100 - laborSplit}
+                                        onChange={e => setLaborSplit(Math.max(0, Math.min(100, 100 - (parseFloat(e.target.value)||0))))}
+                                    />
+                                    <button className="split-btn" onClick={() => adjustSplit(5)}>−</button>
+                                    <span className="split-label">← split →</span>
+                                    <button className="split-btn" onClick={() => adjustSplit(-5)}>+</button>
+                                    <input
+                                        type="number" min="0" max="100"
+                                        className="split-input-sm"
+                                        value={laborSplit}
+                                        onChange={e => setLaborSplit(Math.max(0, Math.min(100, parseFloat(e.target.value)||0)))}
+                                    />
                                 </div>
+                                <input
+                                    type="range" min="0" max="100"
+                                    className="slider"
+                                    style={{'--split-pct': laborSplit}}
+                                    value={laborSplit}
+                                    onChange={e => setLaborSplit(parseFloat(e.target.value))}
+                                />
                             </div>
-                        )}
 
-                        <div className="calculator-panel">
-                            <div className="input-section">
-                                <h2>Target Price & Split</h2>
-
-                                <div className="input-group">
-                                    <label>Target Price ($)</label>
-                                    <input type="number" value={targetPrice} onChange={(e) => setTargetPrice(e.target.value)} placeholder="10000" className="large-input" />
-                                    {targetPrice && <div className="target-price-display">{formatCurrency(parseFloat(targetPrice) || 0)}</div>}
-                                </div>
-
-                                <div className="split-section">
-                                    <div className="split-labels">
-                                        <span>Material: {100 - laborSplit}%</span>
-                                        <span>Labor: {laborSplit}%</span>
-                                    </div>
-                                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'center', marginBottom: '12px'}}>
-                                        <div style={{textAlign: 'left'}}>
-                                            <label style={{fontSize: '0.85em', fontWeight: '600', display: 'block', marginBottom: '6px'}}>Material %</label>
-                                            <input type="number" min="0" max="100" value={100 - laborSplit} onChange={(e) => setLaborSplit(Math.max(0, Math.min(100, 100 - (parseFloat(e.target.value) || 0))))} style={{width: '70px', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '0.9em'}} />
-                                        </div>
-                                        <div style={{textAlign: 'right'}}>
-                                            <label style={{fontSize: '0.85em', fontWeight: '600', display: 'block', marginBottom: '6px'}}>Labor %</label>
-                                            <input type="number" min="0" max="100" value={laborSplit} onChange={(e) => setLaborSplit(Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)))} style={{width: '70px', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '0.9em'}} />
+                            {/* Two-column param inputs — Material LEFT, Labor RIGHT */}
+                            <div className="params-cols">
+                                {/* Material — LEFT */}
+                                <div>
+                                    <div className="param-col-head mh"><IconBox/> Material</div>
+                                    <div className="param-fields">
+                                        <div className="field"><label>Adjustment %</label><input type="number" value={materialAdj} onChange={e => setMaterialAdj(e.target.value)} placeholder=""/></div>
+                                        <div className="field"><label>Overhead %</label><input type="number" value={materialOH} onChange={e => setMaterialOH(e.target.value)} placeholder=""/></div>
+                                        <div className="field"><label>Profit %</label><input type="number" value={materialProfit} onChange={e => setMaterialProfit(e.target.value)} placeholder=""/></div>
+                                        <div className="field">
+                                            <label style={{display:'flex', alignItems:'center', gap:'6px'}}>
+                                                <input type="checkbox" checked={includeTax} onChange={e => setIncludeTax(e.target.checked)} style={{width:'14px',height:'14px',accentColor:'var(--material)',cursor:'pointer'}}/>
+                                                Tax %
+                                            </label>
+                                            <input type="number" value={materialTax} onChange={e => setMaterialTax(e.target.value)} placeholder="" disabled={!includeTax}/>
                                         </div>
                                     </div>
-                                    <div className="split-controls" style={{justifyContent: 'center', marginBottom: '12px'}}>
-                                        <button className="split-button" onClick={() => adjustSplit(-5)}>−</button>
-                                        <span style={{fontWeight: '600', minWidth: '80px', textAlign: 'center'}}>Split</span>
-                                        <button className="split-button" onClick={() => adjustSplit(5)}>+</button>
-                                    </div>
-                                    <input type="range" min="0" max="100" value={laborSplit} onChange={(e) => setLaborSplit(parseFloat(e.target.value))} className="split-slider" />
                                 </div>
-
-                                <div className="params-grid">
-                                    <div className="param-group">
-                                        <label>Labor Rate ($/hr)</label>
-                                        <input type="number" value={laborRate} onChange={(e) => setLaborRate(e.target.value)} placeholder="50" />
-                                    </div>
-                                    <div className="param-group">
-                                        <label>Labor OH %</label>
-                                        <input type="number" value={laborOH} onChange={(e) => setLaborOH(e.target.value)} placeholder="25" />
-                                    </div>
-                                    <div className="param-group">
-                                        <label>Labor Profit %</label>
-                                        <input type="number" value={laborProfit} onChange={(e) => setLaborProfit(e.target.value)} placeholder="20" />
-                                    </div>
-                                    <div className="param-group">
-                                        <label>Material Adj %</label>
-                                        <input type="number" value={materialAdj} onChange={(e) => setMaterialAdj(e.target.value)} placeholder="0" />
-                                    </div>
-                                    <div className="param-group">
-                                        <label>Material OH %</label>
-                                        <input type="number" value={materialOH} onChange={(e) => setMaterialOH(e.target.value)} placeholder="15" />
-                                    </div>
-                                    <div className="param-group">
-                                        <label>Material Profit %</label>
-                                        <input type="number" value={materialProfit} onChange={(e) => setMaterialProfit(e.target.value)} placeholder="25" />
-                                    </div>
-                                    <div className="param-group">
-                                        <label>Material Tax %</label>
-                                        <input type="number" value={materialTax} onChange={(e) => setMaterialTax(e.target.value)} placeholder="0" disabled={!includeTax} />
-                                    </div>
-                                    <div className="param-group">
-                                        <label>Tax Basis</label>
-                                        <select value={taxBasis} onChange={(e) => setTaxBasis(e.target.value)} disabled={!includeTax}>
-                                            <option value="raw">Raw material only</option>
-                                            <option value="full">Material + OH + profit</option>
-                                        </select>
+                                {/* Labor — RIGHT */}
+                                <div>
+                                    <div className="param-col-head lh"><IconHammer/> Labor</div>
+                                    <div className="param-fields">
+                                        <div className="field"><label>Rate ($/hr)</label><input type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)} placeholder=""/></div>
+                                        <div className="field"><label>Overhead %</label><input type="number" value={laborOH} onChange={e => setLaborOH(e.target.value)} placeholder=""/></div>
+                                        <div className="field"><label>Profit %</label><input type="number" value={laborProfit} onChange={e => setLaborProfit(e.target.value)} placeholder=""/></div>
                                     </div>
                                 </div>
                             </div>
-
-                            {results && targetPrice && (
-                                <div className="results-section">
-                                    <h2>Breakdown</h2>
-                                    <div className="results-grid">
-                                        <div className="breakdown-card material-card">
-                                            <h3>Material</h3>
-                                            <div className="result-row highlight"><span>Raw Cost</span><strong>{formatCurrency(results.rawMaterialCost)}</strong></div>
-                                            <div className="result-row"><span>+ Adjustment</span><span>{formatCurrency(results.materialAdjAmount)}</span></div>
-                                            <div className="result-row"><span>+ Overhead</span><span>{formatCurrency(results.materialOHAmount)}</span></div>
-                                            <div className="result-row"><span>+ Profit</span><span>{formatCurrency(results.materialProfitAmount)}</span></div>
-                                            {includeTax && <div className="result-row"><span>+ Tax</span><span>{formatCurrency(results.materialTaxAmount)}</span></div>}
-                                            <div className="result-row total"><span>Total</span><strong>{formatCurrency(results.materialTotal)}</strong></div>
-                                        </div>
-
-                                        <div className="breakdown-card labor-card">
-                                            <h3>Labor</h3>
-                                            <div className="result-row highlight"><span>Hours Needed</span><strong>{formatHours(results.laborHours)}</strong></div>
-                                            <div className="result-row"><span>Raw Cost</span><span>{formatCurrency(results.rawLaborCost)}</span></div>
-                                            <div className="result-row"><span>+ Overhead</span><span>{formatCurrency(results.laborOHAmount)}</span></div>
-                                            <div className="result-row"><span>+ Profit</span><span>{formatCurrency(results.laborProfitAmount)}</span></div>
-                                            <div className="result-row total"><span>Subtotal</span><strong>{formatCurrency(results.laborSubtotal)}</strong></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="combined-total">
-                                        <div className="total-row">
-                                            <span>Combined Total</span>
-                                            <strong className={results.combinedTotal === Math.round(parseFloat(targetPrice) * 100) / 100 ? 'match' : 'mismatch'}>
-                                                {formatCurrency(results.combinedTotal)}
-                                            </strong>
-                                        </div>
-                                        <div className="target-row">
-                                            <span>Target Price</span>
-                                            <strong>{formatCurrency(parseFloat(targetPrice))}</strong>
-                                        </div>
-                                        {Math.abs(results.combinedTotal - Math.round(parseFloat(targetPrice) * 100) / 100) > 0.01 && (
-                                            <div className="warning">
-                                                ⚠️ Total does not match target (rounding difference: {formatCurrency(Math.abs(results.combinedTotal - Math.round(parseFloat(targetPrice) * 100) / 100))})
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {!targetPrice && (
-                                <div className="empty-state">
-                                    <p>Enter a target price to see the breakdown</p>
-                                </div>
-                            )}
                         </div>
                     </div>
 
-                    <footer className="backcalc-footer">
-                        © 2026 by Shaya Birnbaum — Beta 1.0
-                    </footer>
-                </div>
-            );
-        }
+                    {/* ── Results ──────────────────────────── */}
+                    {results && targetPrice ? (
+                        <>
+                            <div className="results-grid">
+                                {/* Material card — LEFT */}
+                                <div className="result-card material-card">
+                                    <div className="result-card-head"><IconBox/> Material</div>
+                                    <div className="result-rows">
+                                        <div className="result-row key-row"><span className="rl">Raw Cost</span><span className="rv">{fmt$(results.rawMaterialCost)}</span></div>
+                                        <div className="result-row"><span className="rl">+ Adjustment</span><span className="rv">{fmt$(results.materialAdjAmt)}</span></div>
+                                        <div className="result-row"><span className="rl">+ Overhead</span><span className="rv">{fmt$(results.materialOHAmt)}</span></div>
+                                        <div className="result-row"><span className="rl">+ Profit</span><span className="rv">{fmt$(results.materialProfitAmt)}</span></div>
+                                        {includeTax && <div className="result-row"><span className="rl">+ Tax</span><span className="rv">{fmt$(results.materialTaxAmt)}</span></div>}
+                                        <div className="result-row subtotal-row"><span className="rl">Total</span><span className="rv">{fmt$(results.materialTotal)}</span></div>
+                                    </div>
+                                </div>
+                                {/* Labor card — RIGHT */}
+                                <div className="result-card labor-card">
+                                    <div className="result-card-head"><IconHammer/> Labor</div>
+                                    <div className="result-rows">
+                                        <div className="result-row key-row">
+                                            <span className="rl">Hours Needed</span>
+                                            <span className="rv">
+                                                {fmtHr(results.laborHours)}
+                                                {results.laborHours === 0 && <span style={{fontSize:'.75rem',color:'var(--text-3)',display:'block',textAlign:'right'}}>Enter rate →</span>}
+                                            </span>
+                                        </div>
+                                        <div className="result-row"><span className="rl">Raw Cost</span><span className="rv">{fmt$(results.rawLaborCost)}</span></div>
+                                        <div className="result-row"><span className="rl">+ Overhead</span><span className="rv">{fmt$(results.laborOHAmount)}</span></div>
+                                        <div className="result-row"><span className="rl">+ Profit</span><span className="rv">{fmt$(results.laborProfitAmt)}</span></div>
+                                        <div className="result-row subtotal-row"><span className="rl">Subtotal</span><span className="rv">{fmt$(results.laborSubtotal)}</span></div>
+                                    </div>
+                                </div>
+                            </div>
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<BackCalc />);
-    </script>
+                            {/* Combined total */}
+                            <div className="total-card">
+                                <div className="total-rows">
+                                    <div className="total-line">
+                                        <span className="tl">Combined Total</span>
+                                        <span className={`tv ${diff <= 0.01 ? 'match' : 'mismatch'}`}>{fmt$(results.combinedTotal)}</span>
+                                    </div>
+                                    <div className="total-divider"/>
+                                    <div className="total-line">
+                                        <span className="tl">Target Price</span>
+                                        <span className="tv neutral">{fmt$(target)}</span>
+                                    </div>
+                                </div>
+                                {diff > 0.01 && (
+                                    <div className="mismatch-warn">
+                                        ⚠ Rounding difference: {fmt$(diff)}
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="card">
+                            <div className="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" strokeLinecap="round"/>
+                                    <circle cx="12" cy="12" r="10"/>
+                                </svg>
+                                <p>Enter a target price above to see the full breakdown</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="footer">© 2026 Shaya Birnbaum — BackCalc Beta 2.0</div>
+                </div>
+            </div>
+        );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<BackCalc/>);
+</script>
 </body>
 </html>

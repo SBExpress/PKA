@@ -65,6 +65,17 @@
       "tags": ["react", "calculator", "estimating", "nate", "subflow-component"],
       "created_at": "2026-05-26T00:00:00Z",
       "updated_at": "2026-05-26T00:00:00Z"
+    },
+    {
+      "id": "g2h4i5k8",
+      "title": "Redesign BackCalc for Better UX and Visual Appeal",
+      "priority": "high",
+      "description": "Review the current BackCalc reverse-engineering estimating calculator and propose a more pleasing and user-friendly design. The redesign should: (1) Improve visual hierarchy and overall aesthetics while maintaining the purple gradient theme or suggesting a better one, (2) Enhance user experience and practical usability of the input and results layout, (3) NOT impact loading or runtime performance — all changes must be CSS/design only, no functionality changes, (4) Keep the tool fast and responsive. Provide design mockups or code suggestions for the visual improvements. Focus on making the calculator more intuitive and visually appealing while keeping it practical to use.",
+      "status": "in_progress",
+      "due_date": null,
+      "tags": ["design", "backcalc", "ux", "emma", "visual-redesign"],
+      "created_at": "2026-05-26T00:00:00Z",
+      "updated_at": "2026-05-26T00:00:00Z"
     }
   ]
 }
