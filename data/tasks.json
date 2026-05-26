@@ -54,6 +54,17 @@
       "tags": ["subflow", "phase6", "nate"],
       "created_at": "2026-05-20T00:00:00Z",
       "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": "a7e2d3f1",
+      "title": "Build Reverse-Engineering Estimating Calculator (React Component)",
+      "priority": "high",
+      "description": "Create a single React component that reverse-engineers labor hours and material costs from a target price. Features: labor/material split slider, labor and material overhead/profit tracking, material adjustment and tax basis options, real-time calculation, and localStorage-based settings persistence. Calculator should output detailed breakdown for labor and material with live updates. Include collapsible Settings panel with Save/Reset buttons.",
+      "status": "pending",
+      "due_date": null,
+      "tags": ["react", "calculator", "estimating", "nate", "subflow-component"],
+      "created_at": "2026-05-26T00:00:00Z",
+      "updated_at": "2026-05-26T00:00:00Z"
     }
   ]
 }
