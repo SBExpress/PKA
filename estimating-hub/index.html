@@ -4,71 +4,291 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estimating Hub</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 60px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #0f172a 0%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            color: #64748b;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            font-size: 1rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-bottom: 80px;
+        }
+
+        .tool-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #dc2626 0%, #7c2d12 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:nth-child(2)::before {
+            background: linear-gradient(90deg, #dc2626 0%, #991b1b 100%);
+        }
+
+        .tool-card:nth-child(3)::before {
+            background: linear-gradient(90deg, #7c2d12 0%, #431407 100%);
+        }
+
+        .tool-card:nth-child(4)::before {
+            background: linear-gradient(90deg, #dc2626 0%, #7c2d12 100%);
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            border-color: #cbd5e1;
+        }
+
+        .tool-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .tool-card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+
+        .tool-card p {
+            font-size: 1rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .tool-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .tool-cta {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #dc2626;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-card:nth-child(2) .tool-cta {
+            color: #dc2626;
+        }
+
+        .tool-card:nth-child(3) .tool-cta {
+            color: #7c2d12;
+        }
+
+        .tool-card:nth-child(4) .tool-cta {
+            color: #dc2626;
+        }
+
+        .tool-card:hover .tool-cta {
+            gap: 10px;
+        }
+
+        .arrow {
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .footer-logo {
+            max-width: 140px;
+            height: auto;
+            margin-bottom: 20px;
+            opacity: 0.85;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-logo:hover {
+            opacity: 1;
+        }
+
+        .copyright {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 12px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .tool-card {
+                padding: 32px 24px;
+            }
+
+            .tool-icon {
+                font-size: 40px;
+            }
+
+            .tool-card h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="phone-frame">
-        <div class="phone-notch"></div>
+    <div class="container">
+        <header>
+            <h1>Estimating Hub</h1>
+            <p class="tagline">Your complete electrical estimating toolkit</p>
+            <p class="description">Fast, accurate estimates with industry-leading tools. All in one place.</p>
+        </header>
 
-        <div class="app-container">
-            <!-- Header -->
-            <div class="app-header">
-                <h1>Estimating Hub</h1>
-                <p class="subtitle">Your toolkit</p>
-            </div>
-
-            <!-- Content -->
-            <div class="app-content">
-                <div class="tools-section">
-                    <!-- WireCalc -->
-                    <a href="https://wirecalc.vercel.app/" target="_blank" class="tool-item">
-                        <div class="tool-icon">⚡</div>
-                        <div class="tool-text">
-                            <h2>WireCalc</h2>
-                            <p>Wire sizing & conduit</p>
-                        </div>
-                        <div class="tool-chevron">›</div>
-                    </a>
-
-                    <!-- V0 Site Calc -->
-                    <a href="https://v0-site-calc.vercel.app/" target="_blank" class="tool-item">
-                        <div class="tool-icon">📋</div>
-                        <div class="tool-text">
-                            <h2>V0 Site Calc</h2>
-                            <p>Site assessment & labor</p>
-                        </div>
-                        <div class="tool-chevron">›</div>
-                    </a>
-
-                    <!-- BackCalc -->
-                    <a href="https://sbexpress.github.io/backcalc/" target="_blank" class="tool-item">
-                        <div class="tool-icon">💰</div>
-                        <div class="tool-text">
-                            <h2>BackCalc</h2>
-                            <p>Reverse-engineer pricing</p>
-                        </div>
-                        <div class="tool-chevron">›</div>
-                    </a>
-
-                    <!-- PKA Dashboard -->
-                    <a href="https://pka-git-master-birnbaumshaya-gmailcoms-projects.vercel.app/dashboard" target="_blank" class="tool-item">
-                        <div class="tool-icon">📊</div>
-                        <div class="tool-text">
-                            <h2>PKA Dashboard</h2>
-                            <p>Manage bids & projects</p>
-                        </div>
-                        <div class="tool-chevron">›</div>
-                    </a>
+        <div class="tools-grid">
+            <!-- WireCalc -->
+            <a href="https://wirecalc.vercel.app/" target="_blank" class="tool-card">
+                <span class="tool-icon">⚡</span>
+                <h2>WireCalc</h2>
+                <p>Rapid wire sizing and conduit calculations. Get accurate NEC-compliant specifications in seconds.</p>
+                <div class="tool-footer">
+                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
                 </div>
-            </div>
+            </a>
 
-            <!-- Footer -->
-            <div class="app-footer">
-                <p>Electrical Estimating Suite</p>
-            </div>
+            <!-- Site Lighting Calc -->
+            <a href="https://v0-site-calc.vercel.app/" target="_blank" class="tool-card">
+                <span class="tool-icon">📋</span>
+                <h2>Site Lighting Calc</h2>
+                <p>Quick site assessment calculator. Estimate scope and labor hours from basic project parameters.</p>
+                <div class="tool-footer">
+                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
+                </div>
+            </a>
+
+            <!-- BackCalc -->
+            <a href="https://sbexpress.github.io/backcalc/" target="_blank" class="tool-card">
+                <span class="tool-icon">💰</span>
+                <h2>BackCalc</h2>
+                <p>Reverse-engineer pricing. Input a target price and break down labor vs. material costs instantly.</p>
+                <div class="tool-footer">
+                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
+                </div>
+            </a>
+
+            <!-- SubFlow Dashboard -->
+            <a href="https://pka-git-master-birnbaumshaya-gmailcoms-projects.vercel.app/dashboard" target="_blank" class="tool-card">
+                <span class="tool-icon">📊</span>
+                <h2>SubFlow Dashboard <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 400; display: block; margin-top: 4px;">in process</span></h2>
+                <p>Task & project hub. Manage bids, track projects, and organize all your estimating work.</p>
+                <div class="tool-footer">
+                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
+                </div>
+            </a>
         </div>
 
-        <div class="phone-bottom"></div>
+        <footer>
+            <img src="logo.png" alt="Express Electric Inc." class="footer-logo">
+            <p>&copy; 2026 Electrical Estimating Suite. Built for contractors, by contractors.</p>
+            <p class="copyright">&copy; 2026 Shaya Birnbaum</p>
+        </footer>
     </div>
 </body>
 </html>
