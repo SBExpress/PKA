@@ -169,6 +169,47 @@
             font-size: 1.2rem;
         }
 
+        .tool-card.under-construction {
+            background: repeating-linear-gradient(
+                45deg,
+                #ffffff,
+                #ffffff 10px,
+                #f9fafb 10px,
+                #f9fafb 20px
+            );
+            opacity: 0.85;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .tool-card.under-construction:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-color: #e2e8f0;
+        }
+
+        .tool-card.under-construction .tool-icon {
+            animation: shake 0.5s infinite;
+        }
+
+        .construction-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-2deg); }
+            75% { transform: rotate(2deg); }
+        }
+
         footer {
             text-align: center;
             padding: 40px 20px;
@@ -247,7 +288,7 @@
             <a href="https://wirecalc.vercel.app/" target="_blank" class="tool-card">
                 <span class="tool-icon">⚡</span>
                 <h2>WireCalc</h2>
-                <p>Rapid wire sizing and conduit calculations. Get accurate NEC-compliant specifications in seconds.</p>
+                <p>NEC compliant wire and conduit sizes based on amps and run length.</p>
                 <div class="tool-footer">
                     <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
                 </div>
@@ -255,9 +296,9 @@
 
             <!-- Site Lighting Calc -->
             <a href="https://v0-site-calc.vercel.app/" target="_blank" class="tool-card">
-                <span class="tool-icon">📋</span>
+                <span class="tool-icon">💡 ────── 💡</span>
                 <h2>Site Lighting Calc</h2>
-                <p>Quick site assessment calculator. Estimate scope and labor hours from basic project parameters.</p>
+                <p>Get accurate wire sizes for site lighting based on length of run between light fixtures.</p>
                 <div class="tool-footer">
                     <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
                 </div>
@@ -274,10 +315,11 @@
             </a>
 
             <!-- SubFlow Dashboard -->
-            <a href="https://pka-git-master-birnbaumshaya-gmailcoms-projects.vercel.app/dashboard" target="_blank" class="tool-card">
-                <span class="tool-icon">📊</span>
-                <h2>SubFlow Dashboard <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 400; display: block; margin-top: 4px;">in process</span></h2>
+            <a href="https://pka-git-master-birnbaumshaya-gmailcoms-projects.vercel.app/dashboard" target="_blank" class="tool-card under-construction">
+                <span class="tool-icon">🚧</span>
+                <h2>SubFlow Dashboard</h2>
                 <p>Task & project hub. Manage bids, track projects, and organize all your estimating work.</p>
+                <div class="construction-badge">Under Construction</div>
                 <div class="tool-footer">
                     <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
                 </div>
