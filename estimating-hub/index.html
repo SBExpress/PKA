@@ -178,14 +178,12 @@
                 #f9fafb 20px
             );
             opacity: 0.85;
-            cursor: not-allowed;
-            pointer-events: none;
         }
 
         .tool-card.under-construction:hover {
-            transform: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border-color: #e2e8f0;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            border-color: #cbd5e1;
         }
 
         .tool-card.under-construction .tool-icon {
@@ -209,6 +207,7 @@
             25% { transform: rotate(-2deg); }
             75% { transform: rotate(2deg); }
         }
+
 
         footer {
             text-align: center;
@@ -296,7 +295,7 @@
 
             <!-- Site Lighting Calc -->
             <a href="https://v0-site-calc.vercel.app/" target="_blank" class="tool-card">
-                <span class="tool-icon">💡 ────── 💡</span>
+                <span class="tool-icon">📱</span>
                 <h2>Site Lighting Calc</h2>
                 <p>Get accurate wire sizes for site lighting based on length of run between light fixtures.</p>
                 <div class="tool-footer">
