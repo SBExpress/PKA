@@ -60,7 +60,7 @@ export default function BidForm({ bid }) {
 
   useEffect(() => {
     if (!form.customer_id || !org) { setContacts([]); return }
-    supabase.from('contacts').select('id, name').eq('customer_id', form.customer_id).eq('organization_id', org.id).order('name').then(({ data }) => setContacts(data?.map(c => ({ id: c.id, first_name: c.name, last_name: '' })) || []))
+    supabase.from('contacts').select('id, name').eq('company_id', form.customer_id).eq('organization_id', org.id).order('name').then(({ data }) => setContacts(data?.map(c => ({ id: c.id, first_name: c.name, last_name: '' })) || []))
   }, [form.customer_id, org, supabase])
 
   async function addCustomerInline() {
