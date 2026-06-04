@@ -30,7 +30,7 @@ export default async function BidsPage() {
 
   const { data: bids } = await supabase
     .from('bid_requests')
-    .select('*')
+    .select('*, companies:customer_id(name)')
     .eq('organization_id', membership.organization_id)
     .order('created_at', { ascending: false })
 
@@ -71,7 +71,7 @@ export default async function BidsPage() {
                       </Link>
                       <p className="text-slate-400 text-xs mt-0.5">{bid.project_address}</p>
                     </td>
-                    <td className="px-6 py-4 text-slate-600">{bid.customer_company || bid.customer_name}</td>
+                    <td className="px-6 py-4 text-slate-600">{bid.companies?.name || ''}</td>
                     <td className="px-6 py-4 text-slate-600">{bid.bid_due_date || 'TBD'}</td>
                     <td className="px-6 py-4">
                       <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColor[bid.status]}`}>
