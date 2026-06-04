@@ -99,6 +99,10 @@ export default function BidForm({ bid }) {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!org) return
+    if (!form.customer_id) {
+      setError('Please select a customer')
+      return
+    }
     setLoading(true)
     setError('')
     const { data: { user } } = await supabase.auth.getUser()
