@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createServerSupabase } from '@/lib/supabaseServer'
 import Sidebar from '@/components/Sidebar'
-import CompanyForm from '@/components/forms/CompanyForm'
+import CompanyDetailWrapper from '@/components/CompanyDetailWrapper'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -57,11 +57,9 @@ export default async function CompanyDetailPage({ params }) {
           <Link href="/companies" className="text-slate-400 hover:text-slate-600 transition-colors">
             <ArrowLeft size={18} />
           </Link>
-          <h1 className="text-2xl font-bold text-slate-800">Edit Company</h1>
+          <h1 className="text-2xl font-bold text-slate-800">{company.name}</h1>
         </div>
-        <div className="bg-white rounded-xl shadow-sm max-w-2xl p-8">
-          <CompanyForm company={company} />
-        </div>
+        <CompanyDetailWrapper company={company} />
       </main>
     </div>
   )
