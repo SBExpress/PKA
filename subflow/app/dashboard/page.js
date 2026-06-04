@@ -60,10 +60,10 @@ export default function Dashboard() {
 
       setOrgId(membership.organization_id)
 
-      // Get bids with company info
+      // Get bids
       const { data: bidsData } = await supabase
         .from('bid_requests')
-        .select('*, proposals(id, revision, status, total_price, date), companies:customer_id(name)')
+        .select('*, proposals(id, revision, status, total_price, date)')
         .eq('organization_id', membership.organization_id)
         .order('bid_due_date', { ascending: true, nullsFirst: false })
         .limit(10)
@@ -138,10 +138,7 @@ export default function Dashboard() {
                 return (
                   <li key={b.id}>
                     <Link href={`/bids/${b.id}`} className="flex items-center justify-between text-sm hover:underline">
-                      <div>
-                        <span className="text-amber-900 font-medium">{b.project_name}</span>
-                        {b.companies?.name && <p className="text-xs text-amber-700">{b.companies.name}</p>}
-                      </div>
+                      <span className="text-amber-900 font-medium">{b.project_name}</span>
                       <span className={`text-xs font-medium ${days <= 2 ? 'text-red-600' : 'text-amber-700'}`}>
                         {days === 0 ? 'Due today' : days < 0 ? `${Math.abs(days)}d overdue` : `${days}d left`}
                       </span>
@@ -190,7 +187,7 @@ export default function Dashboard() {
                         <Link href={`/bids/${bid.id}`} className="font-medium text-slate-800 hover:text-blue-600">{bid.project_name}</Link>
                         {(bid.city || bid.state) && <p className="text-xs text-slate-400 mt-0.5">{[bid.city, bid.state].filter(Boolean).join(', ')}</p>}
                       </td>
-                      <td className="px-6 py-3 text-slate-600">{bid.companies?.name || ''}</td>
+                      <td className="px-6 py-3 text-slate-600">{bid.customer_company || bid.customer_name || ''}</td>
                       <td className="px-6 py-3">
                         {bid.bid_due_date ? (
                           <span className={urgent ? 'text-red-600 font-medium' : 'text-slate-600'}>
