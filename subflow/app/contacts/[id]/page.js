@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createServerSupabase } from '@/lib/supabaseServer'
 import Sidebar from '@/components/Sidebar'
-import ContactForm from '@/components/forms/ContactForm'
+import ContactDetailWrapper from '@/components/ContactDetailWrapper'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -30,6 +30,27 @@ export default async function ContactDetailPage({ params }) {
 
   if (!contact) notFound()
 
+  // Get company name
+  let company_name = null
+  if (contact.company_id) {
+    const { data: company } = await supabase
+      .from('companies')
+      .select('name')
+      .eq('id', contact.company_id)
+      .single()
+    company_name = company?.name
+  }
+
+  // Get related bids
+  const { data: relatedBids } = await supabase
+    .from('bid_requests')
+    .select('id, project_name, status, bid_due_date')
+    .eq('contact_id', id)
+    .eq('organization_id', membership.organization_id)
+    .order('bid_due_date', { ascending: true })
+
+  contact.company_name = company_name
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -38,11 +59,9 @@ export default async function ContactDetailPage({ params }) {
           <Link href="/contacts" className="text-slate-400 hover:text-slate-600 transition-colors">
             <ArrowLeft size={18} />
           </Link>
-          <h1 className="text-2xl font-bold text-slate-800">Edit Contact</h1>
+          <h1 className="text-2xl font-bold text-slate-800">{contact.name}</h1>
         </div>
-        <div className="bg-white rounded-xl shadow-sm max-w-2xl p-8">
-          <ContactForm contact={contact} />
-        </div>
+        <ContactDetailWrapper contact={contact} relatedBids={relatedBids || []} />
       </main>
     </div>
   )
