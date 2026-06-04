@@ -15,6 +15,8 @@ export default function ContactForm({ contact, companyId, onSaved }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [companies, setCompanies] = useState([])
+  const [showNewCompany, setShowNewCompany] = useState(false)
+  const [newCompanyName, setNewCompanyName] = useState('')
   const [form, setForm] = useState({
     name: contact?.name || '',
     title: contact?.title || '',
@@ -34,6 +36,24 @@ export default function ContactForm({ contact, companyId, onSaved }) {
   }, [org, supabase])
 
   function set(f, v) { setForm(p => ({ ...p, [f]: v })) }
+
+  async function addCompanyInline() {
+    if (!newCompanyName.trim() || !org) return
+    setLoading(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data } = await supabase
+      .from('companies')
+      .insert({ name: newCompanyName.trim(), type: 'customer', user_id: user.id, organization_id: org.id })
+      .select()
+      .single()
+    if (data) {
+      setCompanies(c => [...c, { id: data.id, name: data.name }].sort((a, b) => a.name.localeCompare(b.name)))
+      set('company_id', data.id)
+      setNewCompanyName('')
+      setShowNewCompany(false)
+    }
+    setLoading(false)
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -86,7 +106,36 @@ export default function ContactForm({ contact, companyId, onSaved }) {
       {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
 
       <div>
-        <label className={lbl}>Company *</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className={lbl}>Company *</label>
+          <button
+            type="button"
+            onClick={() => setShowNewCompany(!showNewCompany)}
+            className="text-xs text-blue-600 hover:text-blue-700"
+          >
+            + New Company
+          </button>
+        </div>
+        {showNewCompany && (
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              className={field}
+              placeholder="Company name"
+              value={newCompanyName}
+              onChange={e => setNewCompanyName(e.target.value)}
+              disabled={loading}
+            />
+            <button
+              type="button"
+              onClick={addCompanyInline}
+              disabled={loading || !newCompanyName.trim()}
+              className="bg-blue-600 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap disabled:opacity-60"
+            >
+              Add
+            </button>
+          </div>
+        )}
         <select
           required
           className={field}

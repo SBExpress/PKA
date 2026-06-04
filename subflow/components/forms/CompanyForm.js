@@ -33,7 +33,7 @@ export default function CompanyForm({ company, onSaved }) {
 
   function addContact() {
     if (!newContact.name.trim()) return
-    setContacts(p => [...p, { ...newContact, id: Math.random() }])
+    setContacts(p => [...p, { ...newContact, _isNew: true, id: Date.now() }])
     setNewContact({ name: '', email: '', phone: '', title: '' })
   }
 
@@ -58,12 +58,13 @@ export default function CompanyForm({ company, onSaved }) {
 
         // Handle contacts
         for (const contact of contacts) {
-          if (contact.id && typeof contact.id === 'string') {
+          if (contact._isNew) {
+            // New contact - insert
+            const { name, email, phone, title } = contact
+            await supabase.from('contacts').insert({ name, email, phone, title, company_id: company.id, user_id: user.id, organization_id: org.id })
+          } else if (typeof contact.id === 'string') {
             // Existing contact - update
             await supabase.from('contacts').update({ name: contact.name, email: contact.email, phone: contact.phone, title: contact.title }).eq('id', contact.id)
-          } else if (!contact.id) {
-            // New contact - insert
-            await supabase.from('contacts').insert({ ...contact, company_id: company.id, user_id: user.id, organization_id: org.id })
           }
         }
 
@@ -75,8 +76,9 @@ export default function CompanyForm({ company, onSaved }) {
 
         // Insert new contacts
         for (const contact of contacts) {
-          if (!contact.id || typeof contact.id !== 'string') {
-            await supabase.from('contacts').insert({ ...contact, company_id: data.id, user_id: user.id, organization_id: org.id })
+          if (contact._isNew || typeof contact.id !== 'string') {
+            const { name, email, phone, title } = contact
+            await supabase.from('contacts').insert({ name, email, phone, title, company_id: data.id, user_id: user.id, organization_id: org.id })
           }
         }
 
