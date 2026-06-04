@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useOrganization } from '@/lib/useOrganization'
-import { LayoutDashboard, FolderOpen, Building2, Users, FileText, Settings, LogOut, ShieldAdmin } from 'lucide-react'
+import { LayoutDashboard, FolderOpen, Building2, Users, FileText, Settings, LogOut, Shield } from 'lucide-react'
 
 const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -62,7 +62,7 @@ export default function Sidebar() {
                 : 'text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
-            <ShieldAdmin size={16} />
+            <Shield size={16} />
             Admin
           </Link>
         )}
