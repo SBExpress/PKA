@@ -83,7 +83,7 @@ export default function BidForm({ bid }) {
       name: [newContactFirst.trim(), newContactLast.trim()].filter(Boolean).join(' '),
       email: newContactEmail.trim() || null,
       phone: newContactPhone.trim() || null,
-      customer_id: form.customer_id,
+      company_id: form.customer_id,
       user_id: user.id,
       organization_id: org.id,
     }).select().single()
