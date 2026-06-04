@@ -23,10 +23,6 @@ export default function LoginPage() {
       setError('Wrong email or password.')
       setLoading(false)
     } else {
-      console.log('Login successful. Session:', data.session)
-      console.log('User:', data.user)
-      const { data: checkUser } = await supabase.auth.getUser()
-      console.log('getUser() after login:', checkUser.user)
       router.push('/dashboard')
       router.refresh()
     }
