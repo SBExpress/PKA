@@ -1,6 +1,9 @@
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createServerSupabase } from '@/lib/supabaseServer'
+import { createClient } from '@/lib/supabase'
 import Sidebar from '@/components/Sidebar'
 import { Plus, AlertCircle } from 'lucide-react'
 
@@ -24,36 +27,75 @@ function formatDate(d) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-export default async function Dashboard() {
-  const supabase = await createServerSupabase()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+export default function Dashboard() {
+  const router = useRouter()
+  const supabase = createClient()
+  const [user, setUser] = useState(null)
+  const [bids, setBids] = useState([])
+  const [counts, setCounts] = useState({ received: 0, in_progress: 0, submitted: 0, awarded: 0, lost: 0, declined: 0 })
+  const [loading, setLoading] = useState(true)
+  const [orgId, setOrgId] = useState(null)
 
-  // Get user's organization
-  const { data: membership } = await supabase
-    .from('user_organizations')
-    .select('organization_id')
-    .eq('user_id', user.id)
-    .limit(1)
-    .single()
+  useEffect(() => {
+    async function loadDashboard() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
+      setUser(user)
 
-  if (!membership) redirect('/login')
+      // Get organization
+      const { data: membership } = await supabase
+        .from('user_organizations')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single()
 
-  const { data: bids } = await supabase
-    .from('bid_requests')
-    .select('*, proposals(id, revision, status, total_price, date)')
-    .eq('organization_id', membership.organization_id)
-    .order('bid_due_date', { ascending: true, nullsFirst: false })
-    .limit(10)
+      if (!membership) {
+        router.push('/login')
+        return
+      }
 
-  // Efficiently count bids by status using a single optimized query
-  const { data: statusCounts } = await supabase
-    .from('bid_requests')
-    .select('status', { count: 'exact', head: false })
-    .eq('organization_id', membership.organization_id)
+      setOrgId(membership.organization_id)
 
-  const counts = { received: 0, in_progress: 0, submitted: 0, awarded: 0, lost: 0, declined: 0 }
-  statusCounts?.forEach(b => { if (counts[b.status] !== undefined) counts[b.status]++ })
+      // Get bids
+      const { data: bidsData } = await supabase
+        .from('bid_requests')
+        .select('*, proposals(id, revision, status, total_price, date)')
+        .eq('organization_id', membership.organization_id)
+        .order('bid_due_date', { ascending: true, nullsFirst: false })
+        .limit(10)
+
+      setBids(bidsData || [])
+
+      // Get status counts
+      const { data: statusData } = await supabase
+        .from('bid_requests')
+        .select('status', { count: 'exact', head: false })
+        .eq('organization_id', membership.organization_id)
+
+      const newCounts = { received: 0, in_progress: 0, submitted: 0, awarded: 0, lost: 0, declined: 0 }
+      statusData?.forEach(b => { if (newCounts[b.status] !== undefined) newCounts[b.status]++ })
+      setCounts(newCounts)
+
+      setLoading(false)
+    }
+
+    loadDashboard()
+  }, [supabase, router])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 p-8">
+          <p className="text-slate-400">Loading...</p>
+        </main>
+      </div>
+    )
+  }
 
   const activeBids = bids?.filter(b => !['declined', 'awarded', 'lost'].includes(b.status)) || []
   const urgentBids = activeBids.filter(b => { const d = daysUntil(b.bid_due_date); return d !== null && d <= 7 })
