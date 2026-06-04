@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useOrganization } from '@/lib/useOrganization'
 import GoogleAddressInput from '@/components/GoogleAddressInput'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Mail, Phone } from 'lucide-react'
+import Link from 'next/link'
 
 const field = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
 const lbl = 'block text-sm font-medium text-slate-700 mb-1'
@@ -147,20 +148,41 @@ export default function CompanyForm({ company, onSaved }) {
           {contacts.length > 0 && (
             <div className="space-y-3 mb-6">
               {contacts.map(contact => (
-                <div key={contact.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-800">{contact.name}</p>
-                    {contact.title && <p className="text-sm text-slate-600">{contact.title}</p>}
-                    {contact.email && <p className="text-sm text-slate-600">{contact.email}</p>}
-                    {contact.phone && <p className="text-sm text-slate-600">{contact.phone}</p>}
+                <div key={contact.id} className="bg-slate-50 p-3 rounded-lg hover:bg-slate-100 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      {typeof contact.id === 'string' ? (
+                        <Link
+                          href={`/contacts/${contact.id}`}
+                          className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                          {contact.name}
+                        </Link>
+                      ) : (
+                        <p className="font-medium text-slate-800">{contact.name}</p>
+                      )}
+                      {contact.title && <p className="text-sm text-slate-600">{contact.title}</p>}
+                      <div className="flex items-center gap-3 mt-2 text-sm">
+                        {contact.email && (
+                          <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline flex items-center gap-1">
+                            <Mail size={12} /> {contact.email}
+                          </a>
+                        )}
+                        {contact.phone && (
+                          <a href={`tel:${contact.phone}`} className="text-blue-600 hover:underline flex items-center gap-1">
+                            <Phone size={12} /> {contact.phone}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeContact(contact.id)}
+                      className="text-red-600 hover:text-red-700 transition-colors mt-1"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => removeContact(contact.id)}
-                    className="text-red-600 hover:text-red-700 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
                 </div>
               ))}
             </div>
@@ -226,6 +248,43 @@ export default function CompanyForm({ company, onSaved }) {
             >
               Add Contact
             </button>
+          </div>
+        </div>
+      )}
+
+      {company?.relatedBids && company.relatedBids.length > 0 && (
+        <div className="pt-6 border-t border-slate-200">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Related Bid Requests</h3>
+          <div className="space-y-2">
+            {company.relatedBids.map(bid => {
+              const statusColor = {
+                received: 'bg-blue-100 text-blue-700',
+                in_progress: 'bg-yellow-100 text-yellow-700',
+                submitted: 'bg-purple-100 text-purple-700',
+                declined: 'bg-slate-100 text-slate-600',
+                awarded: 'bg-green-100 text-green-700',
+                lost: 'bg-red-100 text-red-700',
+              }
+              return (
+                <Link
+                  key={bid.id}
+                  href={`/bids/${bid.id}`}
+                  className="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors group"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium text-slate-800 group-hover:text-blue-600">{bid.project_name}</p>
+                    {bid.bid_due_date && (
+                      <p className="text-xs text-slate-500">
+                        Due: {new Date(bid.bid_due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColor[bid.status] || 'bg-slate-100 text-slate-600'}`}>
+                    {bid.status.replace('_', ' ')}
+                  </span>
+                </Link>
+              )
+            })}
           </div>
         </div>
       )}

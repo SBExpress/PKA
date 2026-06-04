@@ -86,7 +86,14 @@ export default async function ContactsPage() {
                           size={14}
                           className="text-slate-400"
                         />
-                        {contact.companies?.name || '-'}
+                        {contact.company_id ? (
+                          <Link
+                            href={`/companies/${contact.company_id}`}
+                            className="text-blue-600 hover:text-blue-700 hover:underline"
+                          >
+                            {contact.companies?.name}
+                          </Link>
+                        ) : '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-slate-600">

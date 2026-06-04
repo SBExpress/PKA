@@ -39,6 +39,16 @@ export default async function CompanyDetailPage({ params }) {
 
   company.contacts = contacts || []
 
+  // Get related bids
+  const { data: bids } = await supabase
+    .from('bid_requests')
+    .select('id, project_name, status, bid_due_date')
+    .eq('customer_id', id)
+    .eq('organization_id', membership.organization_id)
+    .order('bid_due_date', { ascending: true })
+
+  company.relatedBids = bids || []
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
