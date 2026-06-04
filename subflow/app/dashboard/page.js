@@ -39,7 +39,9 @@ export default function Dashboard() {
   useEffect(() => {
     async function loadDashboard() {
       const { data: { user } } = await supabase.auth.getUser()
+      console.log('Dashboard: getUser() returned:', user)
       if (!user) {
+        console.log('No user found, redirecting to login')
         router.push('/login')
         return
       }
