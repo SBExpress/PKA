@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useOrganization } from '@/lib/useOrganization'
 import { generateProposalPDF } from '@/lib/generatePDF'
 import RichSectionEditor from '@/components/RichSectionEditor'
 import ProposalPreview from '@/components/ProposalPreview'
@@ -26,6 +27,7 @@ const sectionTitle = 'font-semibold text-slate-700 mb-4 text-base'
 export default function ProposalForm({ bid, proposal, nextRevision }) {
   const router = useRouter()
   const supabase = createClient()
+  const { org } = useOrganization()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPreview, setShowPreview] = useState(false)
@@ -73,10 +75,11 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (!org) return
     setLoading(true)
     setError('')
     const { data: { user } } = await supabase.auth.getUser()
-    const payload = { ...form, bid_request_id: bid.id, user_id: user.id, price_breakdown: priceBreakdown, alternates }
+    const payload = { ...form, bid_request_id: bid.id, user_id: user.id, organization_id: org.id, price_breakdown: priceBreakdown, alternates }
 
     if (proposal?.id) {
       const { error } = await supabase.from('proposals').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', proposal.id)

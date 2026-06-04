@@ -18,10 +18,20 @@ export default async function BidsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Get user's organization
+  const { data: membership } = await supabase
+    .from('user_organizations')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .single()
+
+  if (!membership) redirect('/login')
+
   const { data: bids } = await supabase
     .from('bid_requests')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('organization_id', membership.organization_id)
     .order('created_at', { ascending: false })
 
   return (

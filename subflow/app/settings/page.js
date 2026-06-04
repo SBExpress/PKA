@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Sidebar from '@/components/Sidebar'
 import { createClient } from '@/lib/supabase'
+import { useOrganization } from '@/lib/useOrganization'
 import { Upload, Check } from 'lucide-react'
 
 const field = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -19,6 +20,7 @@ const COLOR_PRESETS = [
 
 export default function SettingsPage() {
   const supabase = createClient()
+  const { org, loading: orgLoading } = useOrganization()
   const fileRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -39,39 +41,38 @@ export default function SettingsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data } = await supabase.from('settings').select('*').eq('user_id', user.id).single()
+      if (orgLoading || !org) return
+      const { data } = await supabase.from('settings').select('*').eq('organization_id', org.id).single()
       if (data) setForm(f => ({ ...f, ...data }))
     }
     load()
-  }, [])
+  }, [org, orgLoading, supabase])
 
   async function handleSave(e) {
     e.preventDefault()
+    if (!org) return
     setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('settings').upsert({ ...form, user_id: user.id, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    await supabase.from('settings').upsert({ ...form, organization_id: org.id, updated_at: new Date().toISOString() }, { onConflict: 'organization_id' })
     setLoading(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
 
   async function handleLogoUpload(e) {
+    if (!org) return
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const { data: { user } } = await supabase.auth.getUser()
     const ext = file.name.split('.').pop()
-    const path = `${user.id}/logo.${ext}`
+    const path = `${org.id}/logo.${ext}`
     const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
     if (!error) {
       const { data } = supabase.storage.from('logos').getPublicUrl(path)
       const newUrl = data.publicUrl + '?t=' + Date.now()
       set('logo_url', newUrl)
       await supabase.from('settings').upsert(
-        { ...form, logo_url: newUrl, user_id: user.id, updated_at: new Date().toISOString() },
-        { onConflict: 'user_id' }
+        { ...form, logo_url: newUrl, organization_id: org.id, updated_at: new Date().toISOString() },
+        { onConflict: 'organization_id' }
       )
     }
     setUploading(false)

@@ -3,18 +3,19 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useOrganization } from '@/lib/useOrganization'
 
 const field = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
 const lbl = 'block text-sm font-medium text-slate-700 mb-1'
 
-export default function ContactForm({ contact, customerId, onSaved }) {
+export default function ContactForm({ contact, companyId, onSaved }) {
   const router = useRouter()
   const supabase = createClient()
+  const { org } = useOrganization()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({
-    first_name: contact?.first_name || '',
-    last_name: contact?.last_name || '',
+    name: contact?.name || '',
     title: contact?.title || '',
     email: contact?.email || '',
     phone: contact?.phone || '',
@@ -24,6 +25,7 @@ export default function ContactForm({ contact, customerId, onSaved }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (!org) return
     setLoading(true)
     setError('')
     const { data: { user } } = await supabase.auth.getUser()
@@ -34,7 +36,7 @@ export default function ContactForm({ contact, customerId, onSaved }) {
       if (onSaved) { onSaved(contact.id); return }
       router.back()
     } else {
-      const { data, error } = await supabase.from('contacts').insert({ ...form, customer_id: customerId, user_id: user.id }).select().single()
+      const { data, error } = await supabase.from('contacts').insert({ ...form, company_id: companyId, user_id: user.id, organization_id: org.id }).select().single()
       if (error) { setError(error.message); setLoading(false); return }
       if (onSaved) { onSaved(data.id); return }
       router.back()

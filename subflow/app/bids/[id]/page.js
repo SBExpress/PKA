@@ -28,11 +28,21 @@ export default async function BidDetailPage({ params }) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Get user's organization
+  const { data: membership } = await supabase
+    .from('user_organizations')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .single()
+
+  if (!membership) redirect('/login')
+
   const { data: bid } = await supabase
     .from('bid_requests')
     .select('*')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('organization_id', membership.organization_id)
     .single()
   if (!bid) notFound()
 
@@ -40,7 +50,7 @@ export default async function BidDetailPage({ params }) {
     supabase.from('proposals').select('id, revision, status, total_price, date').eq('bid_request_id', bid.id).order('revision', { ascending: false }),
     supabase.from('rfqs').select('*').eq('bid_request_id', bid.id).order('created_at', { ascending: false }),
     supabase.from('rfis').select('*').eq('bid_request_id', bid.id).order('created_at', { ascending: false }),
-    supabase.from('settings').select('*').eq('user_id', user.id).single(),
+    supabase.from('settings').select('*').eq('organization_id', membership.organization_id).single(),
   ])
 
   const address = bid.project_address || ''

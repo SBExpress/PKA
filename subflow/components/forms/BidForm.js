@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useOrganization } from '@/lib/useOrganization'
 import AddressAutocomplete from '@/components/AddressAutocomplete'
 import { Plus } from 'lucide-react'
 
@@ -12,6 +13,7 @@ const lbl = 'block text-sm font-medium text-slate-700 mb-1'
 export default function BidForm({ bid }) {
   const router = useRouter()
   const supabase = createClient()
+  const { org } = useOrganization()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [customers, setCustomers] = useState([])
@@ -52,20 +54,22 @@ export default function BidForm({ bid }) {
   }, [])
 
   useEffect(() => {
-    supabase.from('customers').select('id, company_name').order('company_name').then(({ data }) => setCustomers(data || []))
-  }, [])
+    if (!org) return
+    supabase.from('companies').select('id, name').eq('organization_id', org.id).in('type', ['customer', 'both']).order('name').then(({ data }) => setCustomers(data?.map(c => ({ id: c.id, company_name: c.name })) || []))
+  }, [org, supabase])
 
   useEffect(() => {
-    if (!form.customer_id) { setContacts([]); return }
-    supabase.from('contacts').select('id, first_name, last_name').eq('customer_id', form.customer_id).order('last_name').then(({ data }) => setContacts(data || []))
-  }, [form.customer_id])
+    if (!form.customer_id || !org) { setContacts([]); return }
+    supabase.from('contacts').select('id, name').eq('company_id', form.customer_id).eq('organization_id', org.id).order('name').then(({ data }) => setContacts(data?.map(c => ({ id: c.id, first_name: c.name, last_name: '' })) || []))
+  }, [form.customer_id, org, supabase])
 
   async function addCustomerInline() {
-    if (!newCustomerName.trim()) return
+    if (!newCustomerName.trim() || !org) return
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('customers').insert({ company_name: newCustomerName.trim(), user_id: user.id }).select().single()
+    const { data } = await supabase.from('companies').insert({ name: newCustomerName.trim(), type: 'customer', user_id: user.id, organization_id: org.id }).select().single()
     if (data) {
-      setCustomers(c => [...c, data].sort((a, b) => a.company_name.localeCompare(b.company_name)))
+      const customer = { id: data.id, company_name: data.name }
+      setCustomers(c => [...c, customer].sort((a, b) => a.company_name.localeCompare(b.company_name)))
       set('customer_id', data.id)
       setNewCustomerName('')
       setShowNewCustomer(false)
@@ -73,18 +77,19 @@ export default function BidForm({ bid }) {
   }
 
   async function addContactInline() {
-    if (!form.customer_id) return
+    if (!form.customer_id || !org) return
     const { data: { user } } = await supabase.auth.getUser()
     const { data } = await supabase.from('contacts').insert({
-      first_name: newContactFirst.trim(),
-      last_name: newContactLast.trim(),
-      email: newContactEmail.trim(),
-      phone: newContactPhone.trim(),
-      customer_id: form.customer_id,
+      name: [newContactFirst.trim(), newContactLast.trim()].filter(Boolean).join(' '),
+      email: newContactEmail.trim() || null,
+      phone: newContactPhone.trim() || null,
+      company_id: form.customer_id,
       user_id: user.id,
+      organization_id: org.id,
     }).select().single()
     if (data) {
-      setContacts(c => [...c, data])
+      const contact = { id: data.id, first_name: data.name, last_name: '' }
+      setContacts(c => [...c, contact])
       set('contact_id', data.id)
       setNewContactFirst(''); setNewContactLast(''); setNewContactEmail(''); setNewContactPhone('')
       setShowNewContact(false)
@@ -93,6 +98,7 @@ export default function BidForm({ bid }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (!org) return
     setLoading(true)
     setError('')
     const { data: { user } } = await supabase.auth.getUser()
@@ -102,7 +108,7 @@ export default function BidForm({ bid }) {
       if (error) { setError(error.message); setLoading(false); return }
       router.push(`/bids/${bid.id}`)
     } else {
-      const { data, error } = await supabase.from('bid_requests').insert({ ...form, user_id: user.id }).select().single()
+      const { data, error } = await supabase.from('bid_requests').insert({ ...form, user_id: user.id, organization_id: org.id }).select().single()
       if (error) { setError(error.message); setLoading(false); return }
       router.push(`/bids/${data.id}`)
     }

@@ -29,10 +29,20 @@ export default async function Dashboard() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Get user's organization
+  const { data: membership } = await supabase
+    .from('user_organizations')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .single()
+
+  if (!membership) redirect('/login')
+
   const { data: bids } = await supabase
     .from('bid_requests')
     .select('*, proposals(id, revision, status, total_price, date)')
-    .eq('user_id', user.id)
+    .eq('organization_id', membership.organization_id)
     .order('bid_due_date', { ascending: true, nullsFirst: false })
     .limit(10)
 
@@ -40,7 +50,7 @@ export default async function Dashboard() {
   const { data: statusCounts } = await supabase
     .from('bid_requests')
     .select('status', { count: 'exact', head: false })
-    .eq('user_id', user.id)
+    .eq('organization_id', membership.organization_id)
 
   const counts = { received: 0, in_progress: 0, submitted: 0, awarded: 0, lost: 0, declined: 0 }
   statusCounts?.forEach(b => { if (counts[b.status] !== undefined) counts[b.status]++ })

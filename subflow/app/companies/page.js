@@ -15,12 +15,22 @@ export default async function CompaniesPage({ searchParams }) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Get user's organization
+  const { data: membership } = await supabase
+    .from('user_organizations')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .single()
+
+  if (!membership) redirect('/login')
+
   const filterType = searchParams?.type || 'all'
 
   let query = supabase
     .from('companies')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('organization_id', membership.organization_id)
 
   if (filterType !== 'all') {
     query = query.in('type', filterType === 'both' ? ['both'] : [filterType, 'both'])

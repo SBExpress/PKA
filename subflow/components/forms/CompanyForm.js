@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useOrganization } from '@/lib/useOrganization'
 import GoogleAddressInput from '@/components/GoogleAddressInput'
 import { Trash2 } from 'lucide-react'
 
@@ -12,6 +13,7 @@ const lbl = 'block text-sm font-medium text-slate-700 mb-1'
 export default function CompanyForm({ company, onSaved }) {
   const router = useRouter()
   const supabase = createClient()
+  const { org, loading: orgLoading } = useOrganization()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({
@@ -61,20 +63,20 @@ export default function CompanyForm({ company, onSaved }) {
             await supabase.from('contacts').update({ name: contact.name, email: contact.email, phone: contact.phone, title: contact.title }).eq('id', contact.id)
           } else if (!contact.id) {
             // New contact - insert
-            await supabase.from('contacts').insert({ ...contact, company_id: company.id, user_id: user.id })
+            await supabase.from('contacts').insert({ ...contact, company_id: company.id, user_id: user.id, organization_id: org.id })
           }
         }
 
         if (onSaved) { onSaved(company.id); return }
         router.push(`/companies/${company.id}`)
       } else {
-        const { data, error } = await supabase.from('companies').insert({ ...form, user_id: user.id }).select().single()
+        const { data, error } = await supabase.from('companies').insert({ ...form, user_id: user.id, organization_id: org.id }).select().single()
         if (error) throw new Error(error.message)
 
         // Insert new contacts
         for (const contact of contacts) {
           if (!contact.id || typeof contact.id !== 'string') {
-            await supabase.from('contacts').insert({ ...contact, company_id: data.id, user_id: user.id })
+            await supabase.from('contacts').insert({ ...contact, company_id: data.id, user_id: user.id, organization_id: org.id })
           }
         }
 
