@@ -83,14 +83,10 @@ create policy "users_can_see_own_organizations" on organizations for select usin
   id in (select organization_id from user_organizations where user_id = auth.uid())
 );
 
--- RLS Policy for user_organizations (users can see their own memberships, admins can manage)
+-- RLS Policy for user_organizations (users can see their own memberships)
 drop policy if exists "users_can_see_own_memberships" on user_organizations;
 create policy "users_can_see_own_memberships" on user_organizations for select using (
-  user_id = auth.uid() or
-  organization_id in (
-    select organization_id from user_organizations
-    where user_id = auth.uid() and role = 'admin'
-  )
+  user_id = auth.uid()
 );
 
 drop policy if exists "admins_can_manage_memberships" on user_organizations;
