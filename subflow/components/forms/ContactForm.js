@@ -22,6 +22,9 @@ export default function ContactForm({ contact, companyId, onSaved }) {
     title: contact?.title || '',
     email: contact?.email || '',
     phone: contact?.phone || '',
+    cellphone: contact?.cellphone || '',
+    address: contact?.address || '',
+    notes: contact?.notes || '',
     company_id: companyId || contact?.company_id || '',
   })
 
@@ -73,6 +76,9 @@ export default function ContactForm({ contact, companyId, onSaved }) {
           title: form.title,
           email: form.email,
           phone: form.phone,
+          cellphone: form.cellphone,
+          address: form.address,
+          notes: form.notes,
           company_id: form.company_id,
           updated_at: new Date().toISOString()
         })
@@ -88,6 +94,9 @@ export default function ContactForm({ contact, companyId, onSaved }) {
           title: form.title,
           email: form.email,
           phone: form.phone,
+          cellphone: form.cellphone,
+          address: form.address,
+          notes: form.notes,
           company_id: form.company_id,
           user_id: user.id,
           organization_id: org.id
@@ -188,6 +197,36 @@ export default function ContactForm({ contact, companyId, onSaved }) {
             onChange={e => set('phone', e.target.value)}
           />
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className={lbl}>Cell Phone</label>
+          <input
+            className={field}
+            value={form.cellphone}
+            onChange={e => set('cellphone', e.target.value)}
+          />
+        </div>
+        <div>
+          <label className={lbl}>Address</label>
+          <input
+            className={field}
+            value={form.address}
+            onChange={e => set('address', e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className={lbl}>Notes</label>
+        <textarea
+          rows={2}
+          className={field}
+          value={form.notes}
+          onChange={e => set('notes', e.target.value)}
+          placeholder="Additional notes about this contact"
+        />
       </div>
 
       <div className="flex gap-3 pt-2">

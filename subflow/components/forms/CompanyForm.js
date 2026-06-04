@@ -27,14 +27,14 @@ export default function CompanyForm({ company, onSaved }) {
     notes: company?.notes || '',
   })
   const [contacts, setContacts] = useState(company?.contacts || [])
-  const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', title: '' })
+  const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', cellphone: '', title: '', address: '', notes: '' })
 
   function set(f, v) { setForm(p => ({ ...p, [f]: v })) }
 
   function addContact() {
     if (!newContact.name.trim()) return
     setContacts(p => [...p, { ...newContact, _isNew: true, id: Date.now() }])
-    setNewContact({ name: '', email: '', phone: '', title: '' })
+    setNewContact({ name: '', email: '', phone: '', cellphone: '', title: '', address: '', notes: '' })
   }
 
   function removeContact(id) {
@@ -60,11 +60,11 @@ export default function CompanyForm({ company, onSaved }) {
         for (const contact of contacts) {
           if (contact._isNew) {
             // New contact - insert
-            const { name, email, phone, title } = contact
-            await supabase.from('contacts').insert({ name, email, phone, title, company_id: company.id, user_id: user.id, organization_id: org.id })
+            const { name, email, phone, cellphone, title, address, notes } = contact
+            await supabase.from('contacts').insert({ name, email, phone, cellphone, title, address, notes, company_id: company.id, user_id: user.id, organization_id: org.id })
           } else if (typeof contact.id === 'string') {
             // Existing contact - update
-            await supabase.from('contacts').update({ name: contact.name, email: contact.email, phone: contact.phone, title: contact.title }).eq('id', contact.id)
+            await supabase.from('contacts').update({ name: contact.name, email: contact.email, phone: contact.phone, cellphone: contact.cellphone, title: contact.title, address: contact.address, notes: contact.notes }).eq('id', contact.id)
           }
         }
 
@@ -77,8 +77,8 @@ export default function CompanyForm({ company, onSaved }) {
         // Insert new contacts
         for (const contact of contacts) {
           if (contact._isNew || typeof contact.id !== 'string') {
-            const { name, email, phone, title } = contact
-            await supabase.from('contacts').insert({ name, email, phone, title, company_id: data.id, user_id: user.id, organization_id: org.id })
+            const { name, email, phone, cellphone, title, address, notes } = contact
+            await supabase.from('contacts').insert({ name, email, phone, cellphone, title, address, notes, company_id: data.id, user_id: user.id, organization_id: org.id })
           }
         }
 
@@ -188,12 +188,35 @@ export default function CompanyForm({ company, onSaved }) {
               value={newContact.email}
               onChange={e => setNewContact(p => ({ ...p, email: e.target.value }))}
             />
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                className={field}
+                placeholder="Phone"
+                value={newContact.phone}
+                onChange={e => setNewContact(p => ({ ...p, phone: e.target.value }))}
+              />
+              <input
+                type="text"
+                className={field}
+                placeholder="Cell Phone"
+                value={newContact.cellphone}
+                onChange={e => setNewContact(p => ({ ...p, cellphone: e.target.value }))}
+              />
+            </div>
             <input
               type="text"
               className={field}
-              placeholder="Phone"
-              value={newContact.phone}
-              onChange={e => setNewContact(p => ({ ...p, phone: e.target.value }))}
+              placeholder="Address"
+              value={newContact.address}
+              onChange={e => setNewContact(p => ({ ...p, address: e.target.value }))}
+            />
+            <textarea
+              rows={2}
+              className={field}
+              placeholder="Notes"
+              value={newContact.notes}
+              onChange={e => setNewContact(p => ({ ...p, notes: e.target.value }))}
             />
             <button
               type="button"
