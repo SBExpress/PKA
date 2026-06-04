@@ -35,7 +35,7 @@ export default function BidForm({ bid }) {
     zip: bid?.zip || '',
     customer_id: bid?.customer_id || '',
     contact_id: bid?.contact_id || '',
-    bid_due_date: bid?.bid_due_date || '',
+    bid_due_date: bid?.bid_due_date || null,
     received_date: bid?.received_date || new Date().toISOString().slice(0, 10),
     status: bid?.status || 'received',
     notes: bid?.notes || '',
@@ -60,7 +60,7 @@ export default function BidForm({ bid }) {
 
   useEffect(() => {
     if (!form.customer_id || !org) { setContacts([]); return }
-    supabase.from('contacts').select('id, name').eq('company_id', form.customer_id).eq('organization_id', org.id).order('name').then(({ data }) => setContacts(data?.map(c => ({ id: c.id, first_name: c.name, last_name: '' })) || []))
+    supabase.from('contacts').select('id, name').eq('customer_id', form.customer_id).eq('organization_id', org.id).order('name').then(({ data }) => setContacts(data?.map(c => ({ id: c.id, first_name: c.name, last_name: '' })) || []))
   }, [form.customer_id, org, supabase])
 
   async function addCustomerInline() {
@@ -83,7 +83,7 @@ export default function BidForm({ bid }) {
       name: [newContactFirst.trim(), newContactLast.trim()].filter(Boolean).join(' '),
       email: newContactEmail.trim() || null,
       phone: newContactPhone.trim() || null,
-      company_id: form.customer_id,
+      customer_id: form.customer_id,
       user_id: user.id,
       organization_id: org.id,
     }).select().single()
@@ -99,20 +99,41 @@ export default function BidForm({ bid }) {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!org) return
-    if (!form.customer_id) {
+    if (!form.customer_id || form.customer_id === '') {
       setError('Please select a customer')
+      setLoading(false)
       return
     }
     setLoading(true)
     setError('')
     const { data: { user } } = await supabase.auth.getUser()
 
+    // Verify customer exists in org
+    const { data: customerExists, error: customerError } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('id', form.customer_id)
+      .eq('organization_id', org.id)
+      .single()
+
+    if (customerError || !customerExists) {
+      setError('Selected customer not found in your organization')
+      setLoading(false)
+      return
+    }
+
+    const formData = { ...form }
+    // Explicitly set bid_due_date to null if empty
+    if (!formData.bid_due_date) {
+      formData.bid_due_date = null
+    }
+
     if (bid) {
-      const { error } = await supabase.from('bid_requests').update({ ...form, updated_at: new Date().toISOString() }).eq('id', bid.id)
+      const { error } = await supabase.from('bid_requests').update({ ...formData, updated_at: new Date().toISOString() }).eq('id', bid.id)
       if (error) { setError(error.message); setLoading(false); return }
       router.push(`/bids/${bid.id}`)
     } else {
-      const { data, error } = await supabase.from('bid_requests').insert({ ...form, user_id: user.id, organization_id: org.id }).select().single()
+      const { data, error } = await supabase.from('bid_requests').insert({ ...formData, user_id: user.id, organization_id: org.id }).select().single()
       if (error) { setError(error.message); setLoading(false); return }
       router.push(`/bids/${data.id}`)
     }
@@ -205,7 +226,7 @@ export default function BidForm({ bid }) {
         </div>
         <div>
           <label className={lbl}>Bid Due Date</label>
-          <input type="date" className={field} value={form.bid_due_date} onChange={e => set('bid_due_date', e.target.value)} />
+          <input type="date" className={field} value={form.bid_due_date || ''} onChange={e => set('bid_due_date', e.target.value || null)} />
         </div>
         <div>
           <label className={lbl}>Status</label>
