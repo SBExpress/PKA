@@ -358,9 +358,12 @@ export default function RFQPage() {
                 {editingId && (
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       console.log('Duplicate button clicked, editingId:', editingId)
-                      router.push(`/bids/${id}/rfq?copy=${editingId}`, { scroll: false })
+                      const url = `/bids/${id}/rfq?copy=${editingId}`
+                      console.log('Navigating to:', url)
+                      await router.push(url)
+                      console.log('Navigation complete')
                     }}
                     className="flex items-center gap-1.5 text-sm text-slate-500 border border-slate-200 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors"
                   >
@@ -369,7 +372,10 @@ export default function RFQPage() {
                 )}
                 <button
                   type="button"
-                  onClick={() => router.push(`/bids/${id}`)}
+                  onClick={async () => {
+                    console.log('Done button clicked')
+                    await router.push(`/bids/${id}`)
+                  }}
                   className="text-slate-600 text-sm font-medium px-5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors ml-auto"
                 >
                   Done

@@ -374,7 +374,10 @@ export default function RFIPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push(`/bids/${id}`)}
+                  onClick={async () => {
+                    console.log('Done button clicked')
+                    await router.push(`/bids/${id}`)
+                  }}
                   className="text-slate-600 text-sm font-medium px-5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors ml-auto"
                 >
                   Done
