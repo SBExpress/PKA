@@ -19,9 +19,10 @@ export default function ProposalActions({ proposal, bid, customer, contact, sett
     let contactData = contact
     let customerData = customer
 
-    // Fetch fresh contact data if proposal has contact_id
-    if (proposal.contact_id) {
-      const { data } = await supabase.from('contacts').select('*').eq('id', proposal.contact_id).single()
+    // Fetch fresh contact data - first try proposal.contact_id, then bid.contact_id
+    const contactId = proposal.contact_id || bid?.contact_id
+    if (contactId) {
+      const { data } = await supabase.from('contacts').select('*').eq('id', contactId).single()
       if (data) contactData = data
     }
 

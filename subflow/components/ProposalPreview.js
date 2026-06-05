@@ -20,9 +20,9 @@ export default function ProposalPreview({ data, onClose }) {
   const bizName = settings?.business_name || ''
   const bizAddr = settings ? [settings.business_address, settings.business_city, settings.business_state, settings.business_zip].filter(Boolean).join(', ') : ''
   const bizContact = settings ? [settings.business_phone, settings.business_email].filter(Boolean).join('   ') : ''
-  const projectAddr = bid ? [bid.address, bid.address2, bid.city, bid.state, bid.zip].filter(Boolean).join(', ') : ''
+  const projectAddr = bid ? [bid.project_address, bid.city, bid.state, bid.zip].filter(Boolean).join(', ') : ''
   const customerAddr = customer ? [customer.address, customer.city, customer.state, customer.zip].filter(Boolean).join(', ') : ''
-  const contactName = contact ? [contact.first_name, contact.last_name].filter(Boolean).join(' ') : ''
+  const contactName = contact ? (contact.name || [contact.first_name, contact.last_name].filter(Boolean).join(' ')) : ''
   const formattedDate = date ? new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''
   const navy = '#1a2744'
   const red = '#dc2626'
@@ -98,7 +98,9 @@ export default function ProposalPreview({ data, onClose }) {
                   {contactName}{contact?.title ? `, ${contact.title}` : ''}
                 </div>
               )}
-              {contact?.email && <div className="ml-10 text-slate-500">{contact.email}</div>}
+              {contact?.phone && <div className="ml-10 text-slate-500">Phone: {contact.phone}</div>}
+              {contact?.cellphone && <div className="ml-10 text-slate-500">Cell: {contact.cellphone}</div>}
+              {contact?.email && <div className="ml-10 text-slate-500">Email: {contact.email}</div>}
             </div>
 
             <div className="mb-4 text-sm text-slate-700">
