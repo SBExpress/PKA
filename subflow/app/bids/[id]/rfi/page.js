@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useOrganization } from '@/lib/useOrganization'
 import Sidebar from '@/components/Sidebar'
 import Link from 'next/link'
 import RichSectionEditor from '@/components/RichSectionEditor'
@@ -24,6 +25,7 @@ const emptyForm = {
   header: '',
   company_id: null,
   sent_to_name: '',
+  sent_to_contact_id: null,
   sent_to_contact: '',
   sent_to_email: '',
   question: '',
@@ -37,23 +39,32 @@ export default function RFIPage() {
   const searchParams = useSearchParams()
   const rfiId = searchParams.get('id')
   const supabase = createClient()
+  const { org } = useOrganization()
 
   const [bid, setBid] = useState(null)
   const [settings, setSettings] = useState(null)
+  const [contacts, setContacts] = useState([])
   const [rfis, setRfis] = useState([])
   const [form, setForm] = useState(emptyForm)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPreview, setShowPreview] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [showNewContact, setShowNewContact] = useState(false)
+  const [newContactFirst, setNewContactFirst] = useState('')
+  const [newContactLast, setNewContactLast] = useState('')
+  const [newContactEmail, setNewContactEmail] = useState('')
+  const [newContactPhone, setNewContactPhone] = useState('')
 
   useEffect(() => {
     async function load() {
+      if (!org) return
       const { data: { user } } = await supabase.auth.getUser()
-      const [{ data: bidData }, { data: settingsData }, { data: rfiList }] = await Promise.all([
+      const [{ data: bidData }, { data: settingsData }, { data: rfiList }, { data: contactList }] = await Promise.all([
         supabase.from('bid_requests').select('*, customers(*)').eq('id', id).single(),
-        supabase.from('settings').select('*').eq('user_id', user.id).single(),
+        supabase.from('settings').select('*').eq('organization_id', org.id).single(),
         supabase.from('rfis').select('*').eq('bid_request_id', id).order('created_at', { ascending: false }),
+        supabase.from('contacts').select('*').eq('organization_id', org.id).order('name'),
       ])
       if (bidData) {
         setBid(bidData)
@@ -67,6 +78,7 @@ export default function RFIPage() {
         }
       }
       if (settingsData) setSettings(settingsData)
+      if (contactList) setContacts(contactList)
       const list = rfiList || []
       setRfis(list)
 
@@ -76,7 +88,7 @@ export default function RFIPage() {
       }
     }
     load()
-  }, [id])
+  }, [id, org])
 
   function applyRFI(rfi, newEditingId) {
     setEditingId(newEditingId)
@@ -84,6 +96,7 @@ export default function RFIPage() {
       header: rfi.header || '',
       company_id: rfi.company_id || null,
       sent_to_name: rfi.sent_to_name || '',
+      sent_to_contact_id: rfi.sent_to_contact_id || null,
       sent_to_contact: rfi.sent_to_contact || '',
       sent_to_email: rfi.sent_to_email || '',
       question: rfi.question || '',
@@ -119,6 +132,7 @@ export default function RFIPage() {
       company_id: company.id,
       sent_to_name: company.name,
       sent_to_contact: '',
+      sent_to_contact_id: null,
       sent_to_email: company.email || '',
     }))
   }
@@ -127,8 +141,39 @@ export default function RFIPage() {
     handleSelectCompany(company)
   }
 
+  function handleSelectContact(contact) {
+    setForm(f => ({
+      ...f,
+      sent_to_contact_id: contact.id,
+      sent_to_contact: contact.name || '',
+      sent_to_email: contact.email || f.sent_to_email,
+    }))
+  }
+
+  async function addContactInline() {
+    if (!newContactFirst.trim() || !org) return
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data } = await supabase.from('contacts').insert({
+      name: [newContactFirst.trim(), newContactLast.trim()].filter(Boolean).join(' '),
+      email: newContactEmail.trim() || null,
+      phone: newContactPhone.trim() || null,
+      organization_id: org.id,
+      user_id: user.id,
+    }).select().single()
+    if (data) {
+      setContacts(c => [...c, data].sort((a, b) => (a.name || '').localeCompare(b.name || '')))
+      handleSelectContact(data)
+      setNewContactFirst('')
+      setNewContactLast('')
+      setNewContactEmail('')
+      setNewContactPhone('')
+      setShowNewContact(false)
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
+    if (!org) return
     setLoading(true)
     setError('')
     const { data: { user } } = await supabase.auth.getUser()
@@ -136,6 +181,7 @@ export default function RFIPage() {
       header: form.header,
       company_id: form.company_id || null,
       sent_to_name: form.sent_to_name,
+      sent_to_contact_id: form.sent_to_contact_id || null,
       sent_to_contact: form.sent_to_contact,
       sent_to_email: form.sent_to_email,
       question: form.question,
@@ -143,6 +189,7 @@ export default function RFIPage() {
       status: form.status,
       bid_request_id: id,
       user_id: user.id,
+      organization_id: org.id,
       updated_at: new Date().toISOString(),
     }
     if (editingId) {
@@ -215,8 +262,32 @@ export default function RFIPage() {
                   <input className={field} value={form.sent_to_name} onChange={e => setForm(f => ({ ...f, sent_to_name: e.target.value }))} placeholder="Company or person name" />
                 </div>
                 <div>
-                  <label className={lbl}>Contact Name</label>
-                  <input className={field} value={form.sent_to_contact} onChange={e => setForm(f => ({ ...f, sent_to_contact: e.target.value }))} placeholder="Contact person" />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className={lbl + ' mb-0'}>Contact Name</label>
+                    <button type="button" onClick={() => setShowNewContact(!showNewContact)} className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                      <Plus size={12} /> New
+                    </button>
+                  </div>
+                  {showNewContact && (
+                    <div className="space-y-2 mb-2 p-2 bg-slate-50 rounded-lg">
+                      <div className="grid grid-cols-2 gap-2">
+                        <input className={field} placeholder="First name" value={newContactFirst} onChange={e => setNewContactFirst(e.target.value)} />
+                        <input className={field} placeholder="Last name" value={newContactLast} onChange={e => setNewContactLast(e.target.value)} />
+                      </div>
+                      <input className={field} placeholder="Email" value={newContactEmail} onChange={e => setNewContactEmail(e.target.value)} />
+                      <button type="button" onClick={addContactInline} className="bg-blue-600 text-white text-xs px-2 py-1 rounded-lg w-full">Add</button>
+                    </div>
+                  )}
+                  <select className={field} value={form.sent_to_contact_id || ''} onChange={e => {
+                    const contactId = e.target.value
+                    if (contactId) {
+                      const contact = contacts.find(c => c.id === contactId)
+                      if (contact) handleSelectContact(contact)
+                    }
+                  }}>
+                    <option value="">Select a contact...</option>
+                    {contacts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
                 </div>
               </div>
 
