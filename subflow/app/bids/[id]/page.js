@@ -5,6 +5,7 @@ import Sidebar from '@/components/Sidebar'
 import ProposalActions from '@/components/ProposalActions'
 import RFQActions from '@/components/RFQActions'
 import RFIActions from '@/components/RFIActions'
+import BidDetailsSection from '@/components/BidDetailsSection'
 import { FileText, ArrowLeft, Edit, CopyPlus } from 'lucide-react'
 
 const statusColor = {
@@ -100,32 +101,16 @@ export default async function BidDetailPage({ params }) {
         </div>
 
         <div className="grid grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-5 col-span-2">
-            <h2 className="font-semibold text-slate-700 mb-4">Project Info</h2>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-              {[
-                ['Address', address],
-                ['Company', customerName],
-                ['Contact', contactName],
-                ['Email', email],
-                ['Phone', phone],
-                ['Cell Phone', cellphone],
-                ['Received', bid.received_date],
-                ['Bid Due', bid.bid_due_date || 'TBD'],
-              ].map(([k, v]) => v ? (
-                <div key={k}>
-                  <span className="text-slate-400">{k}: </span>
-                  <span className="text-slate-700">{v}</span>
-                </div>
-              ) : null)}
-            </div>
-            {bid.notes && (
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <p className="text-slate-400 text-sm mb-1">Notes</p>
-                <p className="text-slate-700 text-sm">{bid.notes}</p>
-              </div>
-            )}
-          </div>
+          <BidDetailsSection
+            bid={bid}
+            address={address}
+            customerName={customerName}
+            contactName={contactName}
+            email={email}
+            phone={phone}
+            cellphone={cellphone}
+            orgId={membership.organization_id}
+          />
 
           <div className="space-y-3">
             <Link

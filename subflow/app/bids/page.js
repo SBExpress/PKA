@@ -27,11 +27,25 @@ export default async function BidsPage() {
     .eq('organization_id', membership.organization_id)
     .order('created_at', { ascending: false })
 
-  // Map companies relationship to customer_name for the component
-  const bidsWithCustomerNames = bids?.map(bid => ({
-    ...bid,
-    customer_name: bid.companies?.name || '',
-  })) || []
+  // Fetch latest proposal for each bid
+  const bidsWithProposals = await Promise.all((bids || []).map(async (bid) => {
+    const { data: proposals } = await supabase
+      .from('proposals')
+      .select('revision, total_price')
+      .eq('bid_request_id', bid.id)
+      .order('revision', { ascending: false })
+      .limit(1)
+
+    const latestProposal = proposals?.[0]
+    return {
+      ...bid,
+      customer_name: bid.companies?.name || '',
+      latestProposalRevision: latestProposal?.revision ?? null,
+      latestProposalCost: latestProposal?.total_price ?? null,
+    }
+  }))
+
+  const bidsWithCustomerNames = bidsWithProposals
 
   return (
     <div className="flex min-h-screen">
