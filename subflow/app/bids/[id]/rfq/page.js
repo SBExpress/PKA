@@ -194,9 +194,15 @@ export default function RFQPage() {
   }
 
   async function handlePDF() {
+    console.log('handlePDF called, bid:', bid, 'form:', form, 'settings:', settings)
     try {
       if (bid) {
+        console.log('Generating PDF...')
         await generateRFQPDF({ bid, rfq: form, settings })
+        console.log('PDF generated successfully')
+      } else {
+        console.log('bid is not available')
+        setError('Bid data not loaded yet')
       }
     } catch (err) {
       console.error('PDF generation error:', err)
@@ -334,7 +340,10 @@ export default function RFQPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowPreview(true)}
+                  onClick={() => {
+                    console.log('Preview button clicked')
+                    setShowPreview(true)
+                  }}
                   className="flex items-center gap-1.5 text-sm text-slate-600 border border-slate-200 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   <Eye size={14} /> Preview
@@ -349,7 +358,10 @@ export default function RFQPage() {
                 {editingId && (
                   <button
                     type="button"
-                    onClick={() => router.push(`/bids/${id}/rfq?copy=${editingId}`, { scroll: false })}
+                    onClick={() => {
+                      console.log('Duplicate button clicked, editingId:', editingId)
+                      router.push(`/bids/${id}/rfq?copy=${editingId}`, { scroll: false })
+                    }}
                     className="flex items-center gap-1.5 text-sm text-slate-500 border border-slate-200 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors"
                   >
                     <Copy size={14} /> Duplicate
