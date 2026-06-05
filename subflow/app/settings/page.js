@@ -27,6 +27,8 @@ export default function SettingsPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [existingLogos, setExistingLogos] = useState([])
+  const [loadingLogos, setLoadingLogos] = useState(false)
   const [form, setForm] = useState({
     business_name: '',
     business_address: '',
@@ -46,6 +48,26 @@ export default function SettingsPage() {
       if (orgLoading || !org) return
       const { data } = await supabase.from('settings').select('*').eq('organization_id', org.id).single()
       if (data) setForm(f => ({ ...f, ...data }))
+
+      // Load existing logos from bucket
+      setLoadingLogos(true)
+      const { data: files, error } = await supabase.storage.from('logos').list()
+      if (files && !error) {
+        // Get public URLs for each file
+        const logos = files
+          .filter(f => !f.name.startsWith('.'))
+          .map(f => {
+            const { data: publicUrl } = supabase.storage.from('logos').getPublicUrl(f.name)
+            return {
+              name: f.name,
+              url: publicUrl.publicUrl,
+              updated: f.updated_at,
+            }
+          })
+          .sort((a, b) => new Date(b.updated) - new Date(a.updated))
+        setExistingLogos(logos)
+      }
+      setLoadingLogos(false)
     }
     load()
   }, [org, orgLoading, supabase])
@@ -58,6 +80,28 @@ export default function SettingsPage() {
     setLoading(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
+  }
+
+  async function selectExistingLogo(logoUrl) {
+    if (!org) return
+    setLoading(true)
+    try {
+      const { error } = await supabase.from('settings').upsert(
+        { ...form, logo_url: logoUrl, organization_id: org.id, updated_at: new Date().toISOString() },
+        { onConflict: 'organization_id' }
+      )
+      if (error) {
+        setUploadError('Failed to save logo: ' + error.message)
+      } else {
+        set('logo_url', logoUrl)
+        setUploadSuccess(true)
+        setTimeout(() => setUploadSuccess(false), 3000)
+      }
+    } catch (err) {
+      setUploadError(err.message || 'An unexpected error occurred')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleLogoUpload(e) {
@@ -158,8 +202,8 @@ export default function SettingsPage() {
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="font-semibold text-slate-700 mb-4">Logo</h2>
-            <p className="text-xs text-slate-400 mb-4">Your logo appears in the top left of the proposal PDF header.</p>
+            <h2 className="font-semibold text-slate-700 mb-2">Logo</h2>
+            <p className="text-xs text-slate-400 mb-4">Your logo appears in the top left of the proposal PDF header. It will be used for all Proposals, RFIs, and RFQs.</p>
 
             {uploadError && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
@@ -170,14 +214,47 @@ export default function SettingsPage() {
             {uploadSuccess && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 flex items-center gap-2">
                 <Check size={14} />
-                Logo uploaded successfully!
+                Logo selected successfully!
               </div>
             )}
 
-            <div className="flex items-center gap-4 mb-4">
-              {form.logo_url && (
-                <img src={form.logo_url} alt="Logo" className="h-14 object-contain border border-slate-200 rounded-lg p-2" />
-              )}
+            {form.logo_url && (
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-900 font-medium mb-2">Currently selected logo:</p>
+                <img src={form.logo_url} alt="Selected Logo" className="h-16 object-contain" />
+              </div>
+            )}
+
+            {loadingLogos ? (
+              <p className="text-sm text-slate-400 mb-4">Loading logos...</p>
+            ) : existingLogos.length > 0 ? (
+              <div className="mb-6">
+                <p className="text-xs font-medium text-slate-600 mb-3">Select from existing logos:</p>
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {existingLogos.map(logo => (
+                    <button
+                      key={logo.name}
+                      type="button"
+                      onClick={() => selectExistingLogo(logo.url)}
+                      disabled={loading}
+                      className={`p-3 border-2 rounded-lg transition-colors ${
+                        form.logo_url === logo.url
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-slate-200 hover:border-slate-300'
+                      } disabled:opacity-60`}
+                    >
+                      <img src={logo.url} alt={logo.name} className="h-12 object-contain mx-auto mb-1" />
+                      <p className="text-xs text-slate-600 truncate">{logo.name}</p>
+                      <p className="text-xs text-slate-400">
+                        {new Date(logo.updated).toLocaleDateString()}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div className="flex items-center gap-2 mb-4">
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
@@ -185,23 +262,22 @@ export default function SettingsPage() {
                 className="flex items-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
                 <Upload size={14} />
-                {uploading ? 'Uploading...' : form.logo_url ? 'Change Logo' : 'Upload Logo'}
+                {uploading ? 'Uploading...' : 'Upload New Logo'}
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
               {form.logo_url && (
-                <button type="button" onClick={() => set('logo_url', '')} className="text-xs text-red-400 hover:text-red-600">Remove</button>
+                <button type="button" onClick={() => set('logo_url', '')} className="text-xs text-red-400 hover:text-red-600 px-3 py-2">Clear</button>
               )}
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-              <p className="text-xs text-blue-900 font-medium mb-1">Setup required:</p>
-              <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
-                <li>Go to your Supabase dashboard → Storage</li>
-                <li>Click "New bucket"</li>
-                <li>Name it "logos" (exactly)</li>
-                <li>Enable "Public bucket"</li>
-                <li>Create the bucket, then try uploading again</li>
-              </ol>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs text-green-900 font-medium mb-1">✓ PDF Documents</p>
+              <p className="text-xs text-green-800">Selected logo will appear on:</p>
+              <ul className="text-xs text-green-800 space-y-0.5 ml-4 list-disc mt-1">
+                <li>Proposal PDFs</li>
+                <li>RFI (Request for Information) PDFs</li>
+                <li>RFQ (Request for Quote) PDFs</li>
+              </ul>
             </div>
           </div>
 
