@@ -18,7 +18,7 @@ export default async function NewContactPage({ searchParams }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <h1 className="text-2xl font-bold text-slate-800 mb-1">Add Contact</h1>
         {customer && <p className="text-slate-400 text-sm mb-6">{customer.company_name}</p>}
         <div className="bg-white rounded-xl shadow-sm max-w-xl p-8">

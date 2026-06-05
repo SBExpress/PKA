@@ -38,7 +38,7 @@ export default async function ProposalPage({ params, searchParams }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <h1 className="text-2xl font-bold text-slate-800 mb-1">{title}</h1>
         <p className="text-slate-400 text-sm mb-6">{bid.project_name}</p>
         <ProposalForm bid={bid} proposal={proposal} nextRevision={nextRevision} />

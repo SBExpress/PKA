@@ -86,7 +86,7 @@ export default async function BidDetailPage({ params }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/bids" className="text-slate-400 hover:text-slate-600 transition-colors">
             <ArrowLeft size={18} />
@@ -100,48 +100,30 @@ export default async function BidDetailPage({ params }) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 mb-6">
-          <BidDetailsSection
-            bid={bid}
-            address={address}
-            customerName={customerName}
-            contactName={contactName}
-            email={email}
-            phone={phone}
-            cellphone={cellphone}
-            orgId={membership.organization_id}
-          />
-
-          <div className="space-y-3">
-            <Link
-              href={`/bids/${bid.id}/proposal`}
-              className="flex items-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-3 rounded-xl transition-colors justify-center"
-            >
-              <FileText size={15} />
-              New Proposal
-            </Link>
-            <Link
-              href={`/bids/${bid.id}/rfq`}
-              className="flex items-center gap-2 w-full bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-3 rounded-xl border border-slate-200 transition-colors justify-center"
-            >
-              New RFQ
-            </Link>
-            <Link
-              href={`/bids/${bid.id}/rfi`}
-              className="flex items-center gap-2 w-full bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-3 rounded-xl border border-slate-200 transition-colors justify-center"
-            >
-              New RFI
-            </Link>
-          </div>
-        </div>
+        <BidDetailsSection
+          bid={bid}
+          address={address}
+          customerName={customerName}
+          contactName={contactName}
+          email={email}
+          phone={phone}
+          cellphone={cellphone}
+          orgId={membership.organization_id}
+        />
 
         {/* Proposals */}
         <div className="bg-white rounded-xl shadow-sm mb-6">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-700">Proposals</h2>
-            <Link href={`/bids/${bid.id}/proposal`} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
-              + New
-            </Link>
+            <div className="flex items-center gap-3">
+              <h2 className="font-semibold text-slate-700">Proposals</h2>
+              <Link
+                href={`/bids/${bid.id}/proposal`}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <FileText size={13} />
+                New Proposal
+              </Link>
+            </div>
           </div>
           {!proposals?.length ? (
             <p className="px-6 py-5 text-sm text-slate-400">No proposals yet.</p>
@@ -181,10 +163,16 @@ export default async function BidDetailPage({ params }) {
         {/* RFQs */}
         <div className="bg-white rounded-xl shadow-sm mb-6">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-700">RFQs</h2>
-            <Link href={`/bids/${bid.id}/rfq`} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
-              + New
-            </Link>
+            <div className="flex items-center gap-3">
+              <h2 className="font-semibold text-slate-700">RFQs</h2>
+              <Link
+                href={`/bids/${bid.id}/rfq`}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <FileText size={13} />
+                New RFQ
+              </Link>
+            </div>
           </div>
           {!rfqs?.length ? (
             <p className="px-6 py-5 text-sm text-slate-400">No RFQs yet.</p>
@@ -224,10 +212,16 @@ export default async function BidDetailPage({ params }) {
         {/* RFIs */}
         <div className="bg-white rounded-xl shadow-sm">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-700">RFIs</h2>
-            <Link href={`/bids/${bid.id}/rfi`} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
-              + New
-            </Link>
+            <div className="flex items-center gap-3">
+              <h2 className="font-semibold text-slate-700">RFIs</h2>
+              <Link
+                href={`/bids/${bid.id}/rfi`}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <FileText size={13} />
+                New RFI
+              </Link>
+            </div>
           </div>
           {!rfis?.length ? (
             <p className="px-6 py-5 text-sm text-slate-400">No RFIs yet.</p>

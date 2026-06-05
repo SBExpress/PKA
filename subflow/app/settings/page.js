@@ -234,7 +234,7 @@ export default function SettingsPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <h1 className="text-2xl font-bold text-slate-800 mb-6">Settings</h1>
 
         <form onSubmit={handleSave} className="max-w-2xl space-y-6">

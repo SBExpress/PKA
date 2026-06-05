@@ -13,7 +13,7 @@ export default async function NewCompanyPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/companies" className="text-slate-400 hover:text-slate-600 transition-colors">
             <ArrowLeft size={18} />

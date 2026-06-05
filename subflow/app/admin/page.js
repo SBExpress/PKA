@@ -34,7 +34,7 @@ export default async function AdminPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <div className="max-w-4xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-800 mb-2">

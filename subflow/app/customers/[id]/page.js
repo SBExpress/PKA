@@ -19,7 +19,7 @@ export default async function CustomerDetailPage({ params }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/customers" className="text-slate-400 hover:text-slate-600"><ArrowLeft size={18} /></Link>
           <h1 className="text-2xl font-bold text-slate-800">{customer.company_name}</h1>

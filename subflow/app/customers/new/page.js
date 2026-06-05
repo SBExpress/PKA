@@ -11,7 +11,7 @@ export default async function NewCustomerPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <h1 className="text-2xl font-bold text-slate-800 mb-6">Add Customer</h1>
         <div className="bg-white rounded-xl shadow-sm max-w-2xl p-8">
           <CustomerForm />

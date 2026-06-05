@@ -61,7 +61,7 @@ export default function TemplatesPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <h1 className="text-2xl font-bold text-slate-800 mb-6">Proposal Templates</h1>
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-1 space-y-4">

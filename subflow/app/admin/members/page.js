@@ -139,7 +139,7 @@ export default function MembersPage() {
     return (
       <div className="flex min-h-screen">
         <Sidebar />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 bg-slate-100">
           <div className="text-center py-12">
             <p className="text-slate-600">Loading...</p>
           </div>
@@ -152,7 +152,7 @@ export default function MembersPage() {
     return (
       <div className="flex min-h-screen">
         <Sidebar />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 bg-slate-100">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-red-700">Error: {orgError}</p>
           </div>
@@ -164,7 +164,7 @@ export default function MembersPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 bg-slate-100">
         <div className="max-w-4xl">
           <h1 className="text-2xl font-bold text-slate-800 mb-6">
             Manage Members

@@ -239,10 +239,11 @@ export default function BidForm({ bid }) {
             <option value="lost">Lost</option>
           </select>
         </div>
-        <div>
-          <label className={lbl}>Notes</label>
-          <textarea rows={2} className={field} value={form.notes} onChange={e => set('notes', e.target.value)} />
-        </div>
+      </div>
+
+      <div className="border-t border-slate-100 pt-4">
+        <label className={lbl}>Notes</label>
+        <textarea rows={3} className={field} value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Add any notes about this bid request..." />
       </div>
 
       <div className="flex gap-3 pt-2">
