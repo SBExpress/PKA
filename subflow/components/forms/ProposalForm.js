@@ -78,7 +78,7 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
     fetchCompany()
   }, [bid?.customer_id, bid, supabase])
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e, goBack = false) {
     e.preventDefault()
     if (!org) return
     setLoading(true)
@@ -93,8 +93,11 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
       const { error } = await supabase.from('proposals').insert(payload)
       if (error) { setError(error.message); setLoading(false); return }
     }
-    router.push(`/bids/${bid.id}`)
-    router.refresh()
+    setLoading(false)
+    if (goBack) {
+      router.push(`/bids/${bid.id}`)
+      router.refresh()
+    }
   }
 
   async function handleGeneratePDF() {
@@ -181,8 +184,13 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
       </div>
 
       <div className="flex gap-3 pt-2 pb-8">
-        <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60">
-          {loading ? 'Saving...' : 'Save Proposal'}
+        <button
+          type="button"
+          onClick={(e) => handleSubmit(e, false)}
+          disabled={loading}
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
+        >
+          {loading ? 'Saving...' : 'Save'}
         </button>
         <button type="button" onClick={() => setShowPreview(true)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-5 py-2 rounded-lg transition-colors">
           Preview
@@ -190,8 +198,13 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
         <button type="button" onClick={handleGeneratePDF} className="bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors">
           Download PDF
         </button>
-        <button type="button" onClick={() => router.back()} className="text-slate-600 text-sm font-medium px-5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
-          Cancel
+        <button
+          type="button"
+          onClick={(e) => handleSubmit(e, true)}
+          disabled={loading}
+          className="text-slate-600 text-sm font-medium px-5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors ml-auto"
+        >
+          Done
         </button>
       </div>
     </form>

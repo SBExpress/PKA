@@ -60,20 +60,44 @@ export default function RFIPage() {
     async function load() {
       if (!org) return
       const { data: { user } } = await supabase.auth.getUser()
-      const [{ data: bidData }, { data: settingsData }, { data: rfiList }, { data: contactList }] = await Promise.all([
-        supabase.from('bid_requests').select('*, customers(*)').eq('id', id).single(),
+      const [{ data: bidData }, { data: settingsData }, { data: rfiList }, { data: contactList }, { data: proposals }] = await Promise.all([
+        supabase.from('bid_requests').select('*, companies:customer_id(*)').eq('id', id).single(),
         supabase.from('settings').select('*').eq('organization_id', org.id).single(),
         supabase.from('rfis').select('*').eq('bid_request_id', id).order('created_at', { ascending: false }),
         supabase.from('contacts').select('*').eq('organization_id', org.id).order('name'),
+        supabase.from('proposals').select('contact_id').eq('bid_request_id', id).order('revision', { ascending: false }).limit(1),
       ])
       if (bidData) {
         setBid(bidData)
-        // Prefill new RFI form with customer info from bid
+        // Prefill new RFI form with customer and contact info from bid/proposal
         if (!rfiId && !editingId) {
+          let contactToUse = null
+          let contactIdToUse = null
+
+          // Try to get contact from latest proposal
+          if (proposals && proposals.length > 0 && proposals[0].contact_id) {
+            const { data: contactData } = await supabase.from('contacts').select('*').eq('id', proposals[0].contact_id).single()
+            if (contactData) {
+              contactToUse = contactData
+              contactIdToUse = contactData.id
+            }
+          }
+
+          // Fallback to bid's contact_id
+          if (!contactToUse && bidData.contact_id) {
+            const { data: contactData } = await supabase.from('contacts').select('*').eq('id', bidData.contact_id).single()
+            if (contactData) {
+              contactToUse = contactData
+              contactIdToUse = contactData.id
+            }
+          }
+
           setForm(f => ({
             ...emptyForm,
-            sent_to_name: bidData.customer_company || bidData.customer_name || '',
-            sent_to_email: bidData.customer_email || '',
+            sent_to_name: bidData.companies?.name || bidData.customer_company || '',
+            sent_to_contact_id: contactIdToUse,
+            sent_to_contact: contactToUse?.name || '',
+            sent_to_email: contactToUse?.email || bidData.customer_email || '',
           }))
         }
       }
@@ -325,7 +349,7 @@ export default function RFIPage() {
 
               <div className="flex flex-wrap gap-3">
                 <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60">
-                  {loading ? 'Saving...' : 'Save RFI'}
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
                 <button
                   type="button"
@@ -344,7 +368,7 @@ export default function RFIPage() {
                 <button
                   type="button"
                   onClick={() => router.push(`/bids/${id}`)}
-                  className="text-slate-500 text-sm px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors ml-auto"
+                  className="text-slate-600 text-sm font-medium px-5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors ml-auto"
                 >
                   Done
                 </button>
@@ -364,7 +388,7 @@ export default function RFIPage() {
                 {rfis.map(r => (
                   <li
                     key={r.id}
-                    className={`px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors ${r.id === editingId ? 'bg-blue-50 border-l-2 border-blue-500' : ''}`}
+                    className={`px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors ${r.id === editingId ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
                     onClick={() => selectRFI(r)}
                   >
                     <p className="text-sm font-medium text-slate-700 truncate">{r.header || 'No header'}</p>

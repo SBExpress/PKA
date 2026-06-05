@@ -323,7 +323,7 @@ export default function RFQPage() {
 
               <div className="flex flex-wrap gap-3">
                 <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60">
-                  {loading ? 'Saving...' : 'Save RFQ'}
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
                 <button
                   type="button"
@@ -351,7 +351,7 @@ export default function RFQPage() {
                 <button
                   type="button"
                   onClick={() => router.push(`/bids/${id}`)}
-                  className="text-slate-500 text-sm px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors ml-auto"
+                  className="text-slate-600 text-sm font-medium px-5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors ml-auto"
                 >
                   Done
                 </button>
@@ -371,7 +371,7 @@ export default function RFQPage() {
                 {rfqs.map(r => (
                   <li
                     key={r.id}
-                    className={`px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors ${r.id === editingId ? 'bg-blue-50 border-l-2 border-blue-500' : ''}`}
+                    className={`px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors ${r.id === editingId ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
                     onClick={() => selectRFQ(r)}
                   >
                     <p className="text-sm font-medium text-slate-700 truncate">{r.header || 'No header'}</p>
