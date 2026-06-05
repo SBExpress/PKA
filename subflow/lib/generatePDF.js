@@ -316,9 +316,12 @@ export async function generateProposalPDF(data) {
   } else if (customer?.address) { y += 4 }
 
   if (contact) {
-    const cName = [contact.first_name, contact.last_name].filter(Boolean).join(' ')
+    const cName = contact.name || [contact.first_name, contact.last_name].filter(Boolean).join(' ')
     const cLine = [cName, contact.title].filter(Boolean).join(', ')
     if (cLine) { lblRow('Attn:', cLine, true); y += rowH }
+    if (contact.phone) { lblRow('Phone:', contact.phone); y += rowH }
+    if (contact.cellphone) { lblRow('Cell:', contact.cellphone); y += rowH }
+    if (contact.email) { lblRow('Email:', contact.email); y += rowH }
   }
   y += 8
 
@@ -326,6 +329,13 @@ export async function generateProposalPDF(data) {
   if (bid?.address) {
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(100, 100, 100)
     doc.text(bid.address, cntX, y); y += addrH
+  }
+  if (bid?.city || bid?.state || bid?.zip) {
+    const projCity = [bid.city, bid.state, bid.zip].filter(Boolean).join(', ')
+    if (projCity) {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(100, 100, 100)
+      doc.text(projCity, cntX, y); y += rowH
+    }
   }
   const projCity = [bid?.city, bid?.state, bid?.zip].filter(Boolean).join(', ')
   if (projCity) {
