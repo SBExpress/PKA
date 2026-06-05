@@ -29,7 +29,9 @@ export default async function ContactsPage() {
       name,
       email,
       phone,
+      cellphone,
       title,
+      address,
       company_id,
       companies:company_id(name),
       created_at
@@ -67,6 +69,8 @@ export default async function ContactsPage() {
                   <th className="px-6 py-3 font-medium text-slate-500">Title</th>
                   <th className="px-6 py-3 font-medium text-slate-500">Email</th>
                   <th className="px-6 py-3 font-medium text-slate-500">Phone</th>
+                  <th className="px-6 py-3 font-medium text-slate-500">Cell Phone</th>
+                  <th className="px-6 py-3 font-medium text-slate-500">Address</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -100,10 +104,28 @@ export default async function ContactsPage() {
                       {contact.title || '-'}
                     </td>
                     <td className="px-6 py-4 text-slate-600">
-                      {contact.email || '-'}
+                      {contact.email ? (
+                        <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">
+                          {contact.email}
+                        </a>
+                      ) : '-'}
                     </td>
                     <td className="px-6 py-4 text-slate-600">
-                      {contact.phone || '-'}
+                      {contact.phone ? (
+                        <a href={`tel:${contact.phone}`} className="text-blue-600 hover:underline">
+                          {contact.phone}
+                        </a>
+                      ) : '-'}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">
+                      {contact.cellphone ? (
+                        <a href={`tel:${contact.cellphone}`} className="text-blue-600 hover:underline">
+                          {contact.cellphone}
+                        </a>
+                      ) : '-'}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 max-w-xs truncate">
+                      {contact.address || '-'}
                     </td>
                   </tr>
                 ))}

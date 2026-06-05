@@ -1,13 +1,64 @@
 ﻿'use client'
 
 import { useState } from 'react'
-import { Edit2, ChevronDown, ChevronUp, Mail, Phone, MapPin } from 'lucide-react'
+import { Edit2, ChevronDown, ChevronUp, Mail, Phone, MapPin, Plus, X } from 'lucide-react'
 import Link from 'next/link'
 import CompanyForm from '@/components/forms/CompanyForm'
+import { createClient } from '@/lib/supabase'
+import { useOrganization } from '@/lib/useOrganization'
+import { useRouter } from 'next/navigation'
 
-export default function CompanyDetailWrapper({ company }) {
+export default function CompanyDetailWrapper({ company: initialCompany }) {
+  const router = useRouter()
+  const supabase = createClient()
+  const { org } = useOrganization()
+  const [company, setCompany] = useState(initialCompany)
   const [isEditing, setIsEditing] = useState(false)
   const [expandedContact, setExpandedContact] = useState(null)
+  const [showAddContact, setShowAddContact] = useState(false)
+  const [addingContact, setAddingContact] = useState(false)
+  const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', cellphone: '', title: '', address: '', notes: '' })
+
+  async function handleAddContact() {
+    if (!newContact.name.trim() || !org) {
+      alert('Contact name is required')
+      return
+    }
+    setAddingContact(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data, error } = await supabase
+      .from('contacts')
+      .insert({
+        name: newContact.name,
+        email: newContact.email || null,
+        phone: newContact.phone || null,
+        cellphone: newContact.cellphone || null,
+        title: newContact.title || null,
+        address: newContact.address || null,
+        notes: newContact.notes || null,
+        company_id: company.id,
+        user_id: user.id,
+        organization_id: org.id
+      })
+      .select()
+      .single()
+
+    setAddingContact(false)
+    if (error) {
+      alert('Failed to add contact: ' + error.message)
+      return
+    }
+
+    if (data) {
+      setCompany(prev => ({
+        ...prev,
+        contacts: [...(prev.contacts || []), data]
+      }))
+      setNewContact({ name: '', email: '', phone: '', cellphone: '', title: '', address: '', notes: '' })
+      setShowAddContact(false)
+      router.refresh()
+    }
+  }
 
   if (isEditing) {
     return (
@@ -16,7 +67,7 @@ export default function CompanyDetailWrapper({ company }) {
           ← Back
         </button>
         <div className="bg-white rounded-xl shadow-sm p-8">
-          <CompanyForm company={company} onSaved={() => setIsEditing(false)} />
+          <CompanyForm company={company} onSaved={() => { setIsEditing(false); router.refresh() }} />
         </div>
       </div>
     )
@@ -65,9 +116,110 @@ export default function CompanyDetailWrapper({ company }) {
           )}
         </div>
 
-        {company.contacts && company.contacts.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">Contacts ({company.contacts.length})</h3>
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-slate-800">Contacts ({company.contacts?.length || 0})</h3>
+            {!showAddContact && (
+              <button
+                onClick={() => setShowAddContact(true)}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                <Plus size={16} /> Add Contact
+              </button>
+            )}
+          </div>
+
+          {showAddContact && (
+            <div className="bg-slate-50 p-4 rounded-lg mb-6 space-y-3 border border-slate-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-slate-700">Add New Contact</p>
+                <button
+                  onClick={() => setShowAddContact(false)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Contact name *"
+                value={newContact.name}
+                onChange={e => setNewContact(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={addingContact}
+              />
+              <input
+                type="text"
+                placeholder="Title"
+                value={newContact.title}
+                onChange={e => setNewContact(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={addingContact}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={newContact.email}
+                onChange={e => setNewContact(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={addingContact}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  placeholder="Phone"
+                  value={newContact.phone}
+                  onChange={e => setNewContact(prev => ({ ...prev, phone: e.target.value }))}
+                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={addingContact}
+                />
+                <input
+                  type="text"
+                  placeholder="Cell Phone"
+                  value={newContact.cellphone}
+                  onChange={e => setNewContact(prev => ({ ...prev, cellphone: e.target.value }))}
+                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={addingContact}
+                />
+              </div>
+              <input
+                type="text"
+                placeholder="Address"
+                value={newContact.address}
+                onChange={e => setNewContact(prev => ({ ...prev, address: e.target.value }))}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={addingContact}
+              />
+              <textarea
+                placeholder="Notes"
+                rows={2}
+                value={newContact.notes}
+                onChange={e => setNewContact(prev => ({ ...prev, notes: e.target.value }))}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                disabled={addingContact}
+              />
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleAddContact}
+                  disabled={!newContact.name.trim() || addingContact}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60"
+                >
+                  {addingContact ? 'Adding...' : 'Add Contact'}
+                </button>
+                <button
+                  onClick={() => setShowAddContact(false)}
+                  disabled={addingContact}
+                  className="flex-1 text-slate-600 text-sm font-medium px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {company.contacts && company.contacts.length > 0 ? (
             <div className="space-y-3">
               {company.contacts.map(contact => (
                 <div key={contact.id} className="border border-slate-100 rounded-lg p-4">
@@ -99,7 +251,7 @@ export default function CompanyDetailWrapper({ company }) {
                       {contact.cellphone && (
                         <div className="flex items-center gap-2 text-sm">
                           <Phone size={14} className="text-slate-400" />
-                          <span className="text-slate-600">{contact.cellphone}</span>
+                          <a href={`tel:${contact.cellphone}`} className="text-blue-600 hover:underline">{contact.cellphone}</a>
                         </div>
                       )}
                       {contact.address && (
@@ -124,8 +276,10 @@ export default function CompanyDetailWrapper({ company }) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-slate-500 text-sm text-center py-4">No contacts yet. Add one to get started.</p>
+          )}
+        </div>
       </div>
 
       {company.relatedBids && company.relatedBids.length > 0 && (
