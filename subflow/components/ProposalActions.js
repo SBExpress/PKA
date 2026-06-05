@@ -15,14 +15,35 @@ export default function ProposalActions({ proposal, bid, customer, contact, sett
     return data
   }
 
+  async function loadContactAndCustomer() {
+    let contactData = contact
+    let customerData = customer
+
+    // Fetch fresh contact data if proposal has contact_id
+    if (proposal.contact_id) {
+      const { data } = await supabase.from('contacts').select('*').eq('id', proposal.contact_id).single()
+      if (data) contactData = data
+    }
+
+    // Fetch fresh company data if bid has customer_id
+    if (bid?.customer_id) {
+      const { data } = await supabase.from('companies').select('*').eq('id', bid.customer_id).single()
+      if (data) customerData = data
+    }
+
+    return { contactData, customerData }
+  }
+
   async function handlePreview() {
     const full = await loadFull()
-    if (full) setPreview({ ...full, bid, contact, customer, settings })
+    const { contactData, customerData } = await loadContactAndCustomer()
+    if (full) setPreview({ ...full, bid, contact: contactData, customer: customerData, settings })
   }
 
   async function handleDownload() {
     const full = await loadFull()
-    if (full) await generateProposalPDF({ ...full, bid, contact, customer, settings })
+    const { contactData, customerData } = await loadContactAndCustomer()
+    if (full) await generateProposalPDF({ ...full, bid, contact: contactData, customer: customerData, settings })
   }
 
   return (
