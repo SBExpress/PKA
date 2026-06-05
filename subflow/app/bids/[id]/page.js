@@ -179,8 +179,11 @@ export default async function BidDetailPage({ params }) {
           ) : (
             <ul className="divide-y divide-slate-100">
               {rfqs.map(r => (
-                <li key={r.id} className="flex items-center px-6 py-4 hover:bg-slate-50 transition-colors gap-3">
-                  <div className="flex-1 min-w-0">
+                <li key={r.id} className="flex items-center px-6 py-4 hover:bg-slate-50 transition-colors gap-3 group cursor-pointer">
+                  <Link
+                    href={`/bids/${bid.id}/rfq?id=${r.id}`}
+                    className="flex-1 min-w-0"
+                  >
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="text-sm font-medium text-slate-700">{r.header || 'No header'}</span>
                       {r.vendor_name && <span className="text-xs text-slate-500">{r.vendor_name}</span>}
@@ -193,15 +196,9 @@ export default async function BidDetailPage({ params }) {
                         Quote: ${Number(r.quoted_amount).toLocaleString()}
                       </span>
                     )}
-                  </div>
+                  </Link>
                   <div className="flex items-center gap-0.5 flex-shrink-0">
                     <RFQActions rfq={r} bid={bid} settings={settings} />
-                    <Link
-                      href={`/bids/${bid.id}/rfq?id=${r.id}`}
-                      className="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded hover:bg-slate-100 text-xs font-medium ml-1"
-                    >
-                      Edit
-                    </Link>
                   </div>
                 </li>
               ))}
@@ -228,8 +225,11 @@ export default async function BidDetailPage({ params }) {
           ) : (
             <ul className="divide-y divide-slate-100">
               {rfis.map(r => (
-                <li key={r.id} className="flex items-center px-6 py-4 hover:bg-slate-50 transition-colors gap-3">
-                  <div className="flex-1 min-w-0">
+                <li key={r.id} className="flex items-center px-6 py-4 hover:bg-slate-50 transition-colors gap-3 group cursor-pointer">
+                  <Link
+                    href={`/bids/${bid.id}/rfi?id=${r.id}`}
+                    className="flex-1 min-w-0"
+                  >
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="text-sm font-medium text-slate-700">{r.header || 'No header'}</span>
                       {r.sent_to_name && <span className="text-xs text-slate-500">{r.sent_to_name}</span>}
@@ -237,15 +237,9 @@ export default async function BidDetailPage({ params }) {
                         {r.status}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                   <div className="flex items-center gap-0.5 flex-shrink-0">
                     <RFIActions rfi={r} bid={bid} settings={settings} />
-                    <Link
-                      href={`/bids/${bid.id}/rfi?id=${r.id}`}
-                      className="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded hover:bg-slate-100 text-xs font-medium ml-1"
-                    >
-                      Edit
-                    </Link>
                   </div>
                 </li>
               ))}

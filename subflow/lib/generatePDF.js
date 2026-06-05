@@ -286,7 +286,16 @@ export async function generateProposalPDF(data) {
   doc.setDrawColor(...red); doc.setLineWidth(0.75)
   doc.line(pageW / 2 - 50, y, pageW / 2 + 50, y)
   doc.setDrawColor(0, 0, 0)
-  y += 24
+  y += 12
+
+  // Proposal header (if provided)
+  if (data.proposal_header) {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(70, 70, 70)
+    doc.text(data.proposal_header, pageW / 2, y + 6, { align: 'center' })
+    y += 12
+  }
+
+  y += 12
 
   // To / Attn / Project block — label column + content column
   const lblX = margin + 4

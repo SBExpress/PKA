@@ -77,10 +77,13 @@ export default function ProposalPreview({ data, onClose }) {
           {/* Content */}
           <div className="px-[54px] pt-8 pb-4">
 
-            {/* PROPOSAL title */}
+            {/* PROPOSAL title and header */}
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-slate-900 tracking-wide">PROPOSAL</h1>
               <div className="mx-auto mt-1.5 w-24 border-b-2" style={{ borderColor: red }} />
+              {data.proposal_header && (
+                <p className="text-sm font-medium text-slate-700 mt-4">{data.proposal_header}</p>
+              )}
             </div>
 
             {/* To / Attn / Project block */}

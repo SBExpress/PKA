@@ -38,6 +38,7 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
   const [form, setForm] = useState({
     revision: proposal?.revision ?? nextRevision,
     date: proposal?.date || new Date().toISOString().slice(0, 10),
+    proposal_header: proposal?.proposal_header || `${bid?.project_name || ''} - Rev ${proposal?.revision ?? nextRevision}`,
     total_price: proposal?.total_price || '',
     description: proposal?.description || '',
     drawings_used: proposal?.drawings_used || '',
@@ -113,7 +114,7 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
 
       <div className={sectionCls}>
         <p className={sectionTitle}>General</p>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
             <label className={lbl}>Revision #</label>
             <input type="number" className={field} value={form.revision} onChange={e => set('revision', parseInt(e.target.value))} />
@@ -131,6 +132,11 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
               <option value="declined">Declined</option>
             </select>
           </div>
+        </div>
+        <div>
+          <label className={lbl}>Proposal Header</label>
+          <input className={field} value={form.proposal_header} onChange={e => set('proposal_header', e.target.value)} placeholder="e.g., Project Name - Rev 1" />
+          <p className="text-xs text-slate-400 mt-1">This header is displayed at the top of the proposal document</p>
         </div>
       </div>
 

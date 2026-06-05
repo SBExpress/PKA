@@ -231,7 +231,14 @@ export default function RFIPage() {
   }
 
   async function handlePDF() {
-    if (bid) await generateRFIPDF({ bid, rfi: form, settings })
+    try {
+      if (bid) {
+        await generateRFIPDF({ bid, rfi: form, settings })
+      }
+    } catch (err) {
+      console.error('PDF generation error:', err)
+      setError('Failed to generate PDF: ' + (err.message || 'Unknown error'))
+    }
   }
 
   return (
