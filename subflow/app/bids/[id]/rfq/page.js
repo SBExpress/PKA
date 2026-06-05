@@ -74,12 +74,21 @@ export default function RFQPage() {
       const list = rfqList || []
       setRfqs(list)
 
+      console.log('rfqId:', rfqId, 'copyId:', copyId, 'list:', list)
       if (rfqId) {
         const found = list.find(r => r.id === rfqId)
+        console.log('Found RFQ to edit:', found)
         if (found) applyRFQ(found, found.id)
       } else if (copyId) {
+        console.log('Looking for RFQ to copy with id:', copyId)
         const found = list.find(r => r.id === copyId)
-        if (found) applyRFQ({ ...found, quoted_amount: '' }, null)
+        console.log('Found RFQ to copy:', found)
+        if (found) {
+          console.log('Applying RFQ with quoted_amount cleared')
+          applyRFQ({ ...found, quoted_amount: '' }, null)
+        } else {
+          console.log('RFQ to copy not found!')
+        }
       }
     }
     load()
