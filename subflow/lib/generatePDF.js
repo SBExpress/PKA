@@ -326,20 +326,14 @@ export async function generateProposalPDF(data) {
   y += 8
 
   if (bid?.project_name) { lblRow('Project:', bid.project_name, true); y += rowH }
-  if (bid?.address) {
+  if (bid?.project_address) {
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(100, 100, 100)
-    doc.text(bid.address, cntX, y); y += addrH
+    doc.text(bid.project_address, cntX, y); y += addrH
   }
   if (bid?.city || bid?.state || bid?.zip) {
     const projCity = [bid.city, bid.state, bid.zip].filter(Boolean).join(', ')
     if (projCity) {
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(100, 100, 100)
-      doc.text(projCity, cntX, y); y += rowH
-    }
-  }
-  const projCity = [bid?.city, bid?.state, bid?.zip].filter(Boolean).join(', ')
-  if (projCity) {
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(100, 100, 100)
     doc.text(projCity, cntX, y); y += rowH
   } else if (bid?.address) { y += 4 }
   y += 4
