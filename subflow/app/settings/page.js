@@ -25,6 +25,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const [uploadSuccess, setUploadSuccess] = useState(false)
   const [form, setForm] = useState({
     business_name: '',
     business_address: '',
@@ -62,20 +64,51 @@ export default function SettingsPage() {
     if (!org) return
     const file = e.target.files?.[0]
     if (!file) return
+
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const path = `${org.id}/logo.${ext}`
-    const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
-    if (!error) {
-      const { data } = supabase.storage.from('logos').getPublicUrl(path)
-      const newUrl = data.publicUrl + '?t=' + Date.now()
+    setUploadError('')
+    setUploadSuccess(false)
+
+    try {
+      const ext = file.name.split('.').pop()
+      const path = `${org.id}/logo.${ext}`
+
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('logos')
+        .upload(path, file, { upsert: true })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        if (uploadError.message.includes('not found')) {
+          setUploadError('Logo bucket not found. Please create a "logos" bucket in Supabase Storage with public access.')
+        } else {
+          setUploadError(uploadError.message || 'Failed to upload logo')
+        }
+        setUploading(false)
+        return
+      }
+
+      const { data: publicUrlData } = supabase.storage.from('logos').getPublicUrl(path)
+      const newUrl = publicUrlData.publicUrl + '?t=' + Date.now()
       set('logo_url', newUrl)
-      await supabase.from('settings').upsert(
+
+      const { error: dbError } = await supabase.from('settings').upsert(
         { ...form, logo_url: newUrl, organization_id: org.id, updated_at: new Date().toISOString() },
         { onConflict: 'organization_id' }
       )
+
+      if (dbError) {
+        setUploadError('Failed to save logo URL: ' + dbError.message)
+      } else {
+        setUploadSuccess(true)
+        setTimeout(() => setUploadSuccess(false), 3000)
+      }
+    } catch (err) {
+      console.error('Logo upload error:', err)
+      setUploadError(err.message || 'An unexpected error occurred')
+    } finally {
+      setUploading(false)
     }
-    setUploading(false)
   }
 
   return (
@@ -127,7 +160,21 @@ export default function SettingsPage() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="font-semibold text-slate-700 mb-4">Logo</h2>
             <p className="text-xs text-slate-400 mb-4">Your logo appears in the top left of the proposal PDF header.</p>
-            <div className="flex items-center gap-4">
+
+            {uploadError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                {uploadError}
+              </div>
+            )}
+
+            {uploadSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 flex items-center gap-2">
+                <Check size={14} />
+                Logo uploaded successfully!
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 mb-4">
               {form.logo_url && (
                 <img src={form.logo_url} alt="Logo" className="h-14 object-contain border border-slate-200 rounded-lg p-2" />
               )}
@@ -145,7 +192,17 @@ export default function SettingsPage() {
                 <button type="button" onClick={() => set('logo_url', '')} className="text-xs text-red-400 hover:text-red-600">Remove</button>
               )}
             </div>
-            <p className="text-xs text-slate-400 mt-2">Before uploading, go to your Supabase dashboard, click Storage, and create a bucket named "logos" with public access turned on.</p>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+              <p className="text-xs text-blue-900 font-medium mb-1">Setup required:</p>
+              <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
+                <li>Go to your Supabase dashboard → Storage</li>
+                <li>Click "New bucket"</li>
+                <li>Name it "logos" (exactly)</li>
+                <li>Enable "Public bucket"</li>
+                <li>Create the bucket, then try uploading again</li>
+              </ol>
+            </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
