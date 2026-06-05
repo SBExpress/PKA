@@ -40,11 +40,33 @@ export default async function BidDetailPage({ params }) {
 
   const { data: bid } = await supabase
     .from('bid_requests')
-    .select('*, companies:customer_id(name), contacts:contact_id(name, email, phone, cellphone)')
+    .select('*')
     .eq('id', id)
     .eq('organization_id', membership.organization_id)
     .single()
   if (!bid) notFound()
+
+  // Fetch company details if customer_id exists
+  let companyName = ''
+  if (bid.customer_id) {
+    const { data: company } = await supabase
+      .from('companies')
+      .select('name')
+      .eq('id', bid.customer_id)
+      .single()
+    companyName = company?.name || ''
+  }
+
+  // Fetch contact details if contact_id exists
+  let contactData = { name: '', email: '', phone: '', cellphone: '' }
+  if (bid.contact_id) {
+    const { data: contact } = await supabase
+      .from('contacts')
+      .select('name, email, phone, cellphone')
+      .eq('id', bid.contact_id)
+      .single()
+    if (contact) contactData = contact
+  }
 
   const [{ data: proposals }, { data: rfqs }, { data: rfis }, { data: settings }] = await Promise.all([
     supabase.from('proposals').select('id, revision, status, total_price, date').eq('bid_request_id', bid.id).order('revision', { ascending: false }),
@@ -54,11 +76,11 @@ export default async function BidDetailPage({ params }) {
   ])
 
   const address = bid.project_address || ''
-  const customerName = bid.companies?.name || ''
-  const contactName = bid.contacts?.name || ''
-  const email = bid.contacts?.email || ''
-  const phone = bid.contacts?.phone || ''
-  const cellphone = bid.contacts?.cellphone || ''
+  const customerName = companyName || bid.customer_company || ''
+  const contactName = contactData.name || bid.customer_name || ''
+  const email = contactData.email || bid.customer_email || ''
+  const phone = contactData.phone || bid.customer_phone || ''
+  const cellphone = contactData.cellphone || ''
 
   return (
     <div className="flex min-h-screen">
