@@ -62,15 +62,15 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
   useEffect(() => {
     const cid = form.contact_id || bid?.contact_id
     if (!cid) return
-    supabase.from('contacts').select('*, customers(*)').eq('id', cid).single().then(({ data }) => {
-      if (data) { setContact(data); setCustomer(data.customers) }
+    supabase.from('contacts').select('*').eq('id', cid).single().then(({ data }) => {
+      if (data) setContact(data)
     })
-  }, [form.contact_id])
+  }, [form.contact_id, bid?.contact_id, supabase])
 
   useEffect(() => {
     if (!bid?.customer_id) return
-    supabase.from('customers').select('*').eq('id', bid.customer_id).single().then(({ data }) => { if (data) setCustomer(data) })
-  }, [bid])
+    supabase.from('companies').select('*').eq('id', bid.customer_id).single().then(({ data }) => { if (data) setCustomer(data) })
+  }, [bid?.customer_id, supabase])
 
   async function handleSubmit(e) {
     e.preventDefault()
