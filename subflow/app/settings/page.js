@@ -76,28 +76,84 @@ export default function SettingsPage() {
     e.preventDefault()
     if (!org) return
     setLoading(true)
-    await supabase.from('settings').upsert({ ...form, organization_id: org.id, updated_at: new Date().toISOString() }, { onConflict: 'organization_id' })
-    setLoading(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
+    try {
+      const settingsData = { ...form, organization_id: org.id, updated_at: new Date().toISOString() }
+
+      // Try to get existing settings
+      const { data: existing } = await supabase
+        .from('settings')
+        .select('id')
+        .eq('organization_id', org.id)
+        .limit(1)
+        .single()
+
+      let result
+      if (existing) {
+        // Update existing
+        result = await supabase
+          .from('settings')
+          .update(settingsData)
+          .eq('organization_id', org.id)
+      } else {
+        // Insert new
+        result = await supabase
+          .from('settings')
+          .insert([settingsData])
+      }
+
+      if (result.error) {
+        console.error('Save error:', result.error)
+        setUploadError(result.error.message)
+      } else {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2500)
+      }
+    } catch (err) {
+      console.error('Settings save error:', err)
+      setUploadError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function selectExistingLogo(logoUrl) {
     if (!org) return
     setLoading(true)
     try {
-      const { error } = await supabase.from('settings').upsert(
-        { ...form, logo_url: logoUrl, organization_id: org.id, updated_at: new Date().toISOString() },
-        { onConflict: 'organization_id' }
-      )
-      if (error) {
-        setUploadError('Failed to save logo: ' + error.message)
+      const settingsData = { ...form, logo_url: logoUrl, organization_id: org.id, updated_at: new Date().toISOString() }
+
+      // Try to get existing settings
+      const { data: existing } = await supabase
+        .from('settings')
+        .select('id')
+        .eq('organization_id', org.id)
+        .limit(1)
+        .single()
+
+      let result
+      if (existing) {
+        // Update existing
+        result = await supabase
+          .from('settings')
+          .update(settingsData)
+          .eq('organization_id', org.id)
+      } else {
+        // Insert new
+        result = await supabase
+          .from('settings')
+          .insert([settingsData])
+      }
+
+      if (result.error) {
+        console.error('Logo save error:', result.error)
+        setUploadError('Failed to save logo: ' + result.error.message)
       } else {
         set('logo_url', logoUrl)
         setUploadSuccess(true)
         setTimeout(() => setUploadSuccess(false), 3000)
       }
     } catch (err) {
+      console.error('Logo select error:', err)
       setUploadError(err.message || 'An unexpected error occurred')
     } finally {
       setLoading(false)
@@ -136,13 +192,33 @@ export default function SettingsPage() {
       const newUrl = publicUrlData.publicUrl + '?t=' + Date.now()
       set('logo_url', newUrl)
 
-      const { error: dbError } = await supabase.from('settings').upsert(
-        { ...form, logo_url: newUrl, organization_id: org.id, updated_at: new Date().toISOString() },
-        { onConflict: 'organization_id' }
-      )
+      const settingsData = { ...form, logo_url: newUrl, organization_id: org.id, updated_at: new Date().toISOString() }
 
-      if (dbError) {
-        setUploadError('Failed to save logo URL: ' + dbError.message)
+      // Try to get existing settings
+      const { data: existing } = await supabase
+        .from('settings')
+        .select('id')
+        .eq('organization_id', org.id)
+        .limit(1)
+        .single()
+
+      let result
+      if (existing) {
+        // Update existing
+        result = await supabase
+          .from('settings')
+          .update(settingsData)
+          .eq('organization_id', org.id)
+      } else {
+        // Insert new
+        result = await supabase
+          .from('settings')
+          .insert([settingsData])
+      }
+
+      if (result.error) {
+        console.error('Logo save error:', result.error)
+        setUploadError('Failed to save logo URL: ' + result.error.message)
       } else {
         setUploadSuccess(true)
         setTimeout(() => setUploadSuccess(false), 3000)
