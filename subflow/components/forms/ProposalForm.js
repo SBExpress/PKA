@@ -55,10 +55,9 @@ export default function ProposalForm({ bid, proposal, nextRevision }) {
   function set(f, v) { setForm(p => ({ ...p, [f]: v })) }
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) supabase.from('settings').select('*').eq('user_id', user.id).single().then(({ data }) => { if (data) setSettings(data) })
-    })
-  }, [])
+    if (!org) return
+    supabase.from('settings').select('*').eq('organization_id', org.id).single().then(({ data }) => { if (data) setSettings(data) })
+  }, [org, supabase])
 
   useEffect(() => {
     const cid = form.contact_id || bid?.contact_id

@@ -40,7 +40,7 @@ export default async function BidDetailPage({ params }) {
 
   const { data: bid } = await supabase
     .from('bid_requests')
-    .select('*')
+    .select('*, companies:customer_id(name), contacts:contact_id(name, email, phone, cellphone)')
     .eq('id', id)
     .eq('organization_id', membership.organization_id)
     .single()
@@ -53,11 +53,12 @@ export default async function BidDetailPage({ params }) {
     supabase.from('settings').select('*').eq('organization_id', membership.organization_id).single(),
   ])
 
-  const address = bid.project_address || ''
-  const customerName = bid.customer_company || ''
-  const contactName = bid.customer_name || ''
-  const email = bid.customer_email || ''
-  const phone = bid.customer_phone || ''
+  const address = bid.address || ''
+  const customerName = bid.companies?.name || ''
+  const contactName = bid.contacts?.name || ''
+  const email = bid.contacts?.email || ''
+  const phone = bid.contacts?.phone || ''
+  const cellphone = bid.contacts?.cellphone || ''
 
   return (
     <div className="flex min-h-screen">
@@ -86,6 +87,7 @@ export default async function BidDetailPage({ params }) {
                 ['Contact', contactName],
                 ['Email', email],
                 ['Phone', phone],
+                ['Cell Phone', cellphone],
                 ['Received', bid.received_date],
                 ['Bid Due', bid.bid_due_date || 'TBD'],
               ].map(([k, v]) => v ? (

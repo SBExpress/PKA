@@ -1,0 +1,29 @@
+400 kcmil copper @ 75°C = 380A
+500 kcmil copper @ 75°C = 420A
+600 kcmil copper @ 75°C = 475A
+750 kcmil copper @ 75°C = 535A
+1000 kcmil copper @ 75°C = 545A
+
+For 2 sets:
+2 × 380A = 760A
+2 × 420A = 840A
+2 × 475A = 950A
+2 × 535A = 1070A
+2 × 545A = 1090A
+
+For 3 sets:
+3 × 380A = 1140A
+3 × 420A = 1260A
+3 × 475A = 1425A
+3 × 535A = 1605A
+3 × 545A = 1635A
+
+For 4 sets:
+4 × 380A = 1520A
+4 × 420A = 1680A
+4 × 475A = 1900A
+
+For 5 sets:
+5 × 380A = 1900A
+5 × 420A = 2100A
+5 × 475A = 2375A

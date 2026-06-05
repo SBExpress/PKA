@@ -76,6 +76,17 @@
       "tags": ["design", "backcalc", "ux", "emma", "visual-redesign"],
       "created_at": "2026-05-26T00:00:00Z",
       "updated_at": "2026-05-26T00:00:00Z"
+    },
+    {
+      "id": "h3i6j7m9",
+      "title": "Build Electrical Estimating Tools Hub Website",
+      "priority": "high",
+      "description": "Design and build a single-page website that acts as a hub for electrical estimating tools. The website should be visually impressive, clean, modern, and fun with a professional but approachable vibe.\n\nCore Requirements:\n- Single-page website with clean, modern, and fun design\n- All navigation links displayed as attractive buttons (not plain text links)\n- Responsive and user-friendly layout\n- Professional yet approachable aesthetic\n\nLinks to Include:\n1. WireCalc: https://wirecalc.vercel.app/\n2. V0 Site Calc: https://v0-site-calc.vercel.app/\n3. BackCalc: https://sbexpress.github.io/backcalc/\n4. PKA Dashboard: https://pka-git-master-birnbaumshaya-gmailcoms-projects.vercel.app/dashboard\n\nDesign Preferences:\n- Clean and organized layout\n- Professional but approachable vibe\n- Prominent, easy-to-navigate buttons\n- Creative with overall aesthetic and color scheme\n- Maintain focus on functionality and user experience\n\nFeel free to be creative with the design while keeping it functional and user-friendly!\n\n✅ COMPLETED: iOS-style static HTML app with gray/silver color palette. Ready for publishing.",
+      "status": "completed",
+      "due_date": null,
+      "tags": ["website", "design", "hub", "emma", "electrical-tools"],
+      "created_at": "2026-05-28T00:00:00Z",
+      "updated_at": "2026-05-29T00:00:00Z"
     }
   ]
 }
