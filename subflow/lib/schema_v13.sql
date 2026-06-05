@@ -27,6 +27,8 @@ ADD COLUMN IF NOT EXISTS updated_at timestamptz default now();
 -- Update RLS policies to include organization_id
 DROP POLICY IF EXISTS "own rfqs" ON rfqs;
 DROP POLICY IF EXISTS "own rfis" ON rfis;
+DROP POLICY IF EXISTS "org rfqs" ON rfqs;
+DROP POLICY IF EXISTS "org rfis" ON rfis;
 
 CREATE POLICY "org rfqs" ON rfqs FOR ALL USING (
   organization_id IN (
