@@ -53,7 +53,7 @@ export default async function BidDetailPage({ params }) {
     supabase.from('settings').select('*').eq('organization_id', membership.organization_id).single(),
   ])
 
-  const address = bid.address || ''
+  const address = bid.project_address || ''
   const customerName = bid.companies?.name || ''
   const contactName = bid.contacts?.name || ''
   const email = bid.contacts?.email || ''

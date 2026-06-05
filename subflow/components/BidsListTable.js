@@ -102,7 +102,7 @@ export default function BidsListTable({ initialBids, orgId }) {
                   <Link href={`/bids/${bid.id}`} className="font-medium text-slate-800 hover:text-blue-600">
                     {bid.project_name}
                   </Link>
-                  {bid.address && <p className="text-slate-400 text-xs mt-0.5">{bid.address}</p>}
+                  {bid.project_address && <p className="text-slate-400 text-xs mt-0.5">{bid.project_address}</p>}
                 </td>
                 <td className="px-6 py-4 text-slate-600">
                   {bid.customer_name || '—'}
