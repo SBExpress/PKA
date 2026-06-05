@@ -40,6 +40,7 @@ export default function RFQPage() {
   const searchParams = useSearchParams()
   const rfqId = searchParams.get('id')
   const copyId = searchParams.get('copy')
+  console.log('RFQPage mounted. searchParams keys:', Array.from(searchParams.keys()), 'rfqId:', rfqId, 'copyId:', copyId)
   const supabase = createClient()
   const { org } = useOrganization()
 
