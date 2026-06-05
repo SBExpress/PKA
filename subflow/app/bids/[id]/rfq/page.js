@@ -63,9 +63,9 @@ export default function RFQPage() {
       if (!org) return
       const { data: { user } } = await supabase.auth.getUser()
       const [{ data: bidData }, { data: settingsData }, { data: rfqList }, { data: contactList }] = await Promise.all([
-        supabase.from('bid_requests').select('*, customers(*)').eq('id', id).single(),
+        supabase.from('bid_requests').select('*, companies:customer_id(*)').eq('id', id).eq('organization_id', org.id).single(),
         supabase.from('settings').select('*').eq('organization_id', org.id).single(),
-        supabase.from('rfqs').select('*').eq('bid_request_id', id).order('created_at', { ascending: false }),
+        supabase.from('rfqs').select('*').eq('bid_request_id', id).eq('organization_id', org.id).order('created_at', { ascending: false }),
         supabase.from('contacts').select('*').eq('organization_id', org.id).order('name'),
       ])
       if (bidData) setBid(bidData)

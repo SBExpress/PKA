@@ -61,11 +61,11 @@ export default function RFIPage() {
       if (!org) return
       const { data: { user } } = await supabase.auth.getUser()
       const [{ data: bidData }, { data: settingsData }, { data: rfiList }, { data: contactList }, { data: proposals }] = await Promise.all([
-        supabase.from('bid_requests').select('*, companies:customer_id(*)').eq('id', id).single(),
+        supabase.from('bid_requests').select('*, companies:customer_id(*)').eq('id', id).eq('organization_id', org.id).single(),
         supabase.from('settings').select('*').eq('organization_id', org.id).single(),
-        supabase.from('rfis').select('*').eq('bid_request_id', id).order('created_at', { ascending: false }),
+        supabase.from('rfis').select('*').eq('bid_request_id', id).eq('organization_id', org.id).order('created_at', { ascending: false }),
         supabase.from('contacts').select('*').eq('organization_id', org.id).order('name'),
-        supabase.from('proposals').select('contact_id').eq('bid_request_id', id).order('revision', { ascending: false }).limit(1),
+        supabase.from('proposals').select('contact_id').eq('bid_request_id', id).eq('organization_id', org.id).order('revision', { ascending: false }).limit(1),
       ])
       if (bidData) {
         setBid(bidData)
