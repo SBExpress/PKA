@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BackCalc — Reverse Estimating</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin src="./react.min.js"></script>
+    <script crossorigin src="./react-dom.min.js"></script>
     <style>
         /* ── Design tokens ─────────────────────────────── */
         :root {
@@ -723,26 +722,21 @@
 </head>
 <body class="light">
 <div id="root"></div>
-<script type="text/babel">
+<script>
     const { useState, useEffect } = React;
+    const e = React.createElement;
 
-    const IconHammer = () => (
-        <svg viewBox="0 0 16 16" fill="currentColor">
-            <path d="M9.5 1.5a.5.5 0 0 1 .707 0l4.242 4.243a.5.5 0 0 1 0 .707L12.5 8.4l-1.06-1.06 1.59-1.59L9.5 2.56 7.91 4.15 6.85 3.09 9.5 1.5zM1.5 9.5l5-5 1.06 1.06-5 5L1.5 9.5zm1.06 2.12 3.88-3.88 1.06 1.06-3.88 3.88-1.06-1.06z"/>
-        </svg>
+    const IconHammer = () => e('svg', {viewBox: '0 0 16 16', fill: 'currentColor'},
+        e('path', {d: 'M9.5 1.5a.5.5 0 0 1 .707 0l4.242 4.243a.5.5 0 0 1 0 .707L12.5 8.4l-1.06-1.06 1.59-1.59L9.5 2.56 7.91 4.15 6.85 3.09 9.5 1.5zM1.5 9.5l5-5 1.06 1.06-5 5L1.5 9.5zm1.06 2.12 3.88-3.88 1.06 1.06-3.88 3.88-1.06-1.06z'})
     );
 
-    const IconBox = () => (
-        <svg viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5 8.186 1.113zM15 4.43l-6.5 2.788v7.117l6.5-2.978V4.43zm-7.5 9.905V7.218L1 4.43v6.927l6.5 2.978z"/>
-        </svg>
+    const IconBox = () => e('svg', {viewBox: '0 0 16 16', fill: 'currentColor'},
+        e('path', {d: 'M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5 8.186 1.113zM15 4.43l-6.5 2.788v7.117l6.5-2.978V4.43zm-7.5 9.905V7.218L1 4.43v6.927l6.5 2.978z'})
     );
 
-    const IconGear = () => (
-        <svg viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
-            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.474l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
-        </svg>
+    const IconGear = () => e('svg', {viewBox: '0 0 16 16', fill: 'currentColor'},
+        e('path', {d: 'M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z'}),
+        e('path', {d: 'M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.474l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z'})
     );
 
     function BackCalc() {
@@ -890,223 +884,169 @@
         const target = parseFloat(targetPrice) || 0;
         const diff   = results ? Math.abs(results.combinedTotal - Math.round(target * 100) / 100) : 0;
 
-        return (
-            <div className="page">
-                {/* ── Hero ───────────────────────────────── */}
-                <header className="hero">
-                    <div className="hero-logo">
-                        <svg viewBox="0 0 28 28" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-                            <circle cx="14" cy="14" r="11"/>
-                            <path d="M14 8v12M8 14h12"/>
-                            <path d="M18 10l-8 8M10 10l8 8" strokeOpacity=".5"/>
-                        </svg>
-                    </div>
-                    <h1>BackCalc</h1>
-                    <p>Reverse-engineer labor hours &amp; material costs from a target price</p>
-                </header>
-
-                {/* ── Toolbar ─────────────────────────────── */}
-                <div className="toolbar">
-                    <label className={`toggle-pill ${darkMode ? 'active' : ''}`}>
-                        <input type="checkbox" checked={darkMode} onChange={e => setDarkMode(e.target.checked)}/>
-                        <span className="dot"/>
-                        Dark
-                    </label>
-                    <div className="toolbar-sep"/>
-                    <button className="settings-btn" onClick={() => setShowSettings(s => !s)}>
-                        <IconGear/> {showSettings ? 'Close' : 'Settings'}
-                    </button>
-                </div>
-
-                <div className="main">
-
-                    {/* ── Settings panel ──────────────────── */}
-                    {showSettings && (
-                        <div className="card settings-card">
-                            <div className="settings-title">Default Settings</div>
-                            <div className="settings-grid">
-                                <div className="setting-field"><label>Labor Rate ($/hr)</label><input type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)} placeholder=""/></div>
-                                <div className="setting-field"><label>Labor Overhead %</label><input type="number" value={laborOH} onChange={e => setLaborOH(e.target.value)} placeholder=""/></div>
-                                <div className="setting-field"><label>Labor Profit %</label><input type="number" value={laborProfit} onChange={e => setLaborProfit(e.target.value)} placeholder=""/></div>
-                                <div className="setting-field"><label>Material Adjustment %</label><input type="number" value={materialAdj} onChange={e => setMaterialAdj(e.target.value)} placeholder=""/></div>
-                                <div className="setting-field"><label>Material Overhead %</label><input type="number" value={materialOH} onChange={e => setMaterialOH(e.target.value)} placeholder=""/></div>
-                                <div className="setting-field"><label>Material Profit %</label><input type="number" value={materialProfit} onChange={e => setMaterialProfit(e.target.value)} placeholder=""/></div>
-                                <div className="setting-field"><label>Material Tax %</label><input type="number" value={materialTax} onChange={e => setMaterialTax(e.target.value)} placeholder="" disabled={!includeTax}/></div>
-                                <div className="setting-field">
-                                    <label>Tax Basis</label>
-                                    <select value={taxBasis} onChange={e => setTaxBasis(e.target.value)} disabled={!includeTax}>
-                                        <option value="raw">Tax on raw + adjustment</option>
-                                        <option value="full">Tax on full subtotal</option>
-                                    </select>
-                                </div>
-                                <div className="setting-field"><label>Default Labor Split %</label><input type="number" min="0" max="100" value={laborSplit} onChange={e => setLaborSplit(Math.max(0, Math.min(100, parseFloat(e.target.value)||0)))}/></div>
-                            </div>
-                            <div className="settings-actions">
-                                <button className="btn btn-primary" onClick={handleSave}>Save &amp; Close</button>
-                                <button className="btn btn-ghost"   onClick={handleReset}>Reset Defaults</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ── Main calculator card ─────────────── */}
-                    <div className="card">
-                        <div className="card-body">
-                            <div className="section-title">Target Price &amp; Split</div>
-
-                            {/* Target price */}
-                            <div className="target-row">
-                                <div className="target-group">
-                                    <label className="field-label">Target Price ($)</label>
-                                    <input
-                                        className="input-lg"
-                                        type="number"
-                                        value={targetPrice}
-                                        onChange={e => setTargetPrice(e.target.value)}
-                                        placeholder=""
-                                    />
-                                </div>
-                                {targetPrice && (
-                                    <div className="target-badge">{fmt$(target)}</div>
-                                )}
-                            </div>
-
-                            {/* Split */}
-                            <div className="split-wrap">
-                                <div className="split-header">
-                                    <span className="split-tag material">Material: {100 - laborSplit}%</span>
-                                    <span className="split-tag labor">Labor: {laborSplit}%</span>
-                                </div>
-                                <div className="split-controls">
-                                    <input
-                                        type="number" min="0" max="100"
-                                        className="split-input-sm"
-                                        value={100 - laborSplit}
-                                        onChange={e => setLaborSplit(Math.max(0, Math.min(100, 100 - (parseFloat(e.target.value)||0))))}
-                                    />
-                                    <button className="split-btn" onClick={() => adjustSplit(5)}>−</button>
-                                    <span className="split-label">← split →</span>
-                                    <button className="split-btn" onClick={() => adjustSplit(-5)}>+</button>
-                                    <input
-                                        type="number" min="0" max="100"
-                                        className="split-input-sm"
-                                        value={laborSplit}
-                                        onChange={e => setLaborSplit(Math.max(0, Math.min(100, parseFloat(e.target.value)||0)))}
-                                    />
-                                </div>
-                                <input
-                                    type="range" min="0" max="100"
-                                    className="slider"
-                                    style={{'--split-pct': laborSplit}}
-                                    value={laborSplit}
-                                    onChange={e => setLaborSplit(parseFloat(e.target.value))}
-                                />
-                            </div>
-
-                            {/* Two-column param inputs — Material LEFT, Labor RIGHT */}
-                            <div className="params-cols">
-                                {/* Material — LEFT */}
-                                <div>
-                                    <div className="param-col-head mh"><IconBox/> Material</div>
-                                    <div className="param-fields">
-                                        <div className="field"><label>Adjustment %</label><input type="number" value={materialAdj} onChange={e => setMaterialAdj(e.target.value)} placeholder=""/></div>
-                                        <div className="field"><label>Overhead %</label><input type="number" value={materialOH} onChange={e => setMaterialOH(e.target.value)} placeholder=""/></div>
-                                        <div className="field"><label>Profit %</label><input type="number" value={materialProfit} onChange={e => setMaterialProfit(e.target.value)} placeholder=""/></div>
-                                        <div className="field">
-                                            <label style={{display:'flex', alignItems:'center', gap:'6px'}}>
-                                                <input type="checkbox" checked={includeTax} onChange={e => setIncludeTax(e.target.checked)} style={{width:'14px',height:'14px',accentColor:'var(--material)',cursor:'pointer'}}/>
-                                                Tax %
-                                            </label>
-                                            <input type="number" value={materialTax} onChange={e => setMaterialTax(e.target.value)} placeholder="" disabled={!includeTax}/>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Labor — RIGHT */}
-                                <div>
-                                    <div className="param-col-head lh"><IconHammer/> Labor</div>
-                                    <div className="param-fields">
-                                        <div className="field"><label>Rate ($/hr)</label><input type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)} placeholder=""/></div>
-                                        <div className="field"><label>Overhead %</label><input type="number" value={laborOH} onChange={e => setLaborOH(e.target.value)} placeholder=""/></div>
-                                        <div className="field"><label>Profit %</label><input type="number" value={laborProfit} onChange={e => setLaborProfit(e.target.value)} placeholder=""/></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ── Results ──────────────────────────── */}
-                    {results && targetPrice ? (
-                        <>
-                            <div className="results-grid">
-                                {/* Material card — LEFT */}
-                                <div className="result-card material-card">
-                                    <div className="result-card-head"><IconBox/> Material</div>
-                                    <div className="result-rows">
-                                        <div className="result-row key-row"><span className="rl">Raw Cost</span><span className="rv">{fmt$(results.rawMaterialCost)}</span></div>
-                                        <div className="result-row"><span className="rl">+ Adjustment</span><span className="rv">{fmt$(results.materialAdjAmt)}</span></div>
-                                        <div className="result-row"><span className="rl">+ Overhead</span><span className="rv">{fmt$(results.materialOHAmt)}</span></div>
-                                        <div className="result-row"><span className="rl">+ Profit</span><span className="rv">{fmt$(results.materialProfitAmt)}</span></div>
-                                        {includeTax && <div className="result-row"><span className="rl">+ Tax</span><span className="rv">{fmt$(results.materialTaxAmt)}</span></div>}
-                                        <div className="result-row subtotal-row"><span className="rl">Total</span><span className="rv">{fmt$(results.materialTotal)}</span></div>
-                                    </div>
-                                </div>
-                                {/* Labor card — RIGHT */}
-                                <div className="result-card labor-card">
-                                    <div className="result-card-head"><IconHammer/> Labor</div>
-                                    <div className="result-rows">
-                                        <div className="result-row key-row">
-                                            <span className="rl">Hours Needed</span>
-                                            <span className="rv">
-                                                {fmtHr(results.laborHours)}
-                                                {results.laborHours === 0 && <span style={{fontSize:'.75rem',color:'var(--text-3)',display:'block',textAlign:'right'}}>Enter rate →</span>}
-                                            </span>
-                                        </div>
-                                        <div className="result-row"><span className="rl">Raw Cost</span><span className="rv">{fmt$(results.rawLaborCost)}</span></div>
-                                        <div className="result-row"><span className="rl">+ Overhead</span><span className="rv">{fmt$(results.laborOHAmount)}</span></div>
-                                        <div className="result-row"><span className="rl">+ Profit</span><span className="rv">{fmt$(results.laborProfitAmt)}</span></div>
-                                        <div className="result-row subtotal-row"><span className="rl">Subtotal</span><span className="rv">{fmt$(results.laborSubtotal)}</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Combined total */}
-                            <div className="total-card">
-                                <div className="total-rows">
-                                    <div className="total-line">
-                                        <span className="tl">Combined Total</span>
-                                        <span className={`tv ${diff <= 0.01 ? 'match' : 'mismatch'}`}>{fmt$(results.combinedTotal)}</span>
-                                    </div>
-                                    <div className="total-divider"/>
-                                    <div className="total-line">
-                                        <span className="tl">Target Price</span>
-                                        <span className="tv neutral">{fmt$(target)}</span>
-                                    </div>
-                                </div>
-                                {diff > 0.01 && (
-                                    <div className="mismatch-warn">
-                                        ⚠ Rounding difference: {fmt$(diff)}
-                                    </div>
-                                )}
-                            </div>
-                        </>
-                    ) : (
-                        <div className="card">
-                            <div className="empty-state">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" strokeLinecap="round"/>
-                                    <circle cx="12" cy="12" r="10"/>
-                                </svg>
-                                <p>Enter a target price above to see the full breakdown</p>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="footer">© 2026 Shaya Birnbaum — BackCalc Beta 2.0</div>
-                </div>
-            </div>
+        return e('div', {className: 'page'},
+            e('header', {className: 'hero'},
+                e('div', {className: 'hero-logo'},
+                    e('svg', {viewBox: '0 0 28 28', fill: 'none', stroke: 'white', strokeWidth: '2', strokeLinecap: 'round'},
+                        e('circle', {cx: '14', cy: '14', r: '11'}),
+                        e('path', {d: 'M14 8v12M8 14h12'}),
+                        e('path', {d: 'M18 10l-8 8M10 10l8 8', strokeOpacity: '.5'})
+                    )
+                ),
+                e('h1', null, 'BackCalc'),
+                e('p', null, 'Reverse-engineer labor hours & material costs from a target price')
+            ),
+            e('div', {className: 'toolbar'},
+                e('label', {className: `toggle-pill ${darkMode ? 'active' : ''}`},
+                    e('input', {type: 'checkbox', checked: darkMode, onChange: ev => setDarkMode(ev.target.checked)}),
+                    e('span', {className: 'dot'}),
+                    'Dark'
+                ),
+                e('div', {className: 'toolbar-sep'}),
+                e('button', {className: 'settings-btn', onClick: () => setShowSettings(s => !s)},
+                    e(IconGear),
+                    ' ',
+                    showSettings ? 'Close' : 'Settings'
+                )
+            ),
+            e('div', {className: 'main'},
+                showSettings && e('div', {className: 'card settings-card'},
+                    e('div', {className: 'settings-title'}, 'Default Settings'),
+                    e('div', {className: 'settings-grid'},
+                        e('div', {className: 'setting-field'}, e('label', null, 'Labor Rate ($/hr)'), e('input', {type: 'number', value: laborRate, onChange: ev => setLaborRate(ev.target.value), placeholder: ''})),
+                        e('div', {className: 'setting-field'}, e('label', null, 'Labor Overhead %'), e('input', {type: 'number', value: laborOH, onChange: ev => setLaborOH(ev.target.value), placeholder: ''})),
+                        e('div', {className: 'setting-field'}, e('label', null, 'Labor Profit %'), e('input', {type: 'number', value: laborProfit, onChange: ev => setLaborProfit(ev.target.value), placeholder: ''})),
+                        e('div', {className: 'setting-field'}, e('label', null, 'Material Adjustment %'), e('input', {type: 'number', value: materialAdj, onChange: ev => setMaterialAdj(ev.target.value), placeholder: ''})),
+                        e('div', {className: 'setting-field'}, e('label', null, 'Material Overhead %'), e('input', {type: 'number', value: materialOH, onChange: ev => setMaterialOH(ev.target.value), placeholder: ''})),
+                        e('div', {className: 'setting-field'}, e('label', null, 'Material Profit %'), e('input', {type: 'number', value: materialProfit, onChange: ev => setMaterialProfit(ev.target.value), placeholder: ''})),
+                        e('div', {className: 'setting-field'}, e('label', null, 'Material Tax %'), e('input', {type: 'number', value: materialTax, onChange: ev => setMaterialTax(ev.target.value), placeholder: '', disabled: !includeTax})),
+                        e('div', {className: 'setting-field'},
+                            e('label', null, 'Tax Basis'),
+                            e('select', {value: taxBasis, onChange: ev => setTaxBasis(ev.target.value), disabled: !includeTax},
+                                e('option', {value: 'raw'}, 'Tax on raw + adjustment'),
+                                e('option', {value: 'full'}, 'Tax on full subtotal')
+                            )
+                        ),
+                        e('div', {className: 'setting-field'}, e('label', null, 'Default Labor Split %'), e('input', {type: 'number', min: '0', max: '100', value: laborSplit, onChange: ev => setLaborSplit(Math.max(0, Math.min(100, parseFloat(ev.target.value)||0)))}))
+                    ),
+                    e('div', {className: 'settings-actions'},
+                        e('button', {className: 'btn btn-primary', onClick: handleSave}, 'Save & Close'),
+                        e('button', {className: 'btn btn-ghost', onClick: handleReset}, 'Reset Defaults')
+                    )
+                ),
+                e('div', {className: 'card'},
+                    e('div', {className: 'card-body'},
+                        e('div', {className: 'section-title'}, 'Target Price & Split'),
+                        e('div', {className: 'target-row'},
+                            e('div', {className: 'target-group'},
+                                e('label', {className: 'field-label'}, 'Target Price ($)'),
+                                e('input', {className: 'input-lg', type: 'number', value: targetPrice, onChange: ev => setTargetPrice(ev.target.value), placeholder: ''})
+                            ),
+                            targetPrice && e('div', {className: 'target-badge'}, fmt$(target))
+                        ),
+                        e('div', {className: 'split-wrap'},
+                            e('div', {className: 'split-header'},
+                                e('span', {className: 'split-tag material'}, `Material: ${100 - laborSplit}%`),
+                                e('span', {className: 'split-tag labor'}, `Labor: ${laborSplit}%`)
+                            ),
+                            e('div', {className: 'split-controls'},
+                                e('input', {type: 'number', min: '0', max: '100', className: 'split-input-sm', value: 100 - laborSplit, onChange: ev => setLaborSplit(Math.max(0, Math.min(100, 100 - (parseFloat(ev.target.value)||0))))}),
+                                e('button', {className: 'split-btn', onClick: () => adjustSplit(5)}, '−'),
+                                e('span', {className: 'split-label'}, '← split →'),
+                                e('button', {className: 'split-btn', onClick: () => adjustSplit(-5)}, '+'),
+                                e('input', {type: 'number', min: '0', max: '100', className: 'split-input-sm', value: laborSplit, onChange: ev => setLaborSplit(Math.max(0, Math.min(100, parseFloat(ev.target.value)||0)))})
+                            ),
+                            e('input', {type: 'range', min: '0', max: '100', className: 'slider', style: {'--split-pct': laborSplit}, value: laborSplit, onChange: ev => setLaborSplit(parseFloat(ev.target.value))})
+                        ),
+                        e('div', {className: 'params-cols'},
+                            e('div', null,
+                                e('div', {className: 'param-col-head mh'}, e(IconBox), ' Material'),
+                                e('div', {className: 'param-fields'},
+                                    e('div', {className: 'field'}, e('label', null, 'Adjustment %'), e('input', {type: 'number', value: materialAdj, onChange: ev => setMaterialAdj(ev.target.value), placeholder: ''})),
+                                    e('div', {className: 'field'}, e('label', null, 'Overhead %'), e('input', {type: 'number', value: materialOH, onChange: ev => setMaterialOH(ev.target.value), placeholder: ''})),
+                                    e('div', {className: 'field'}, e('label', null, 'Profit %'), e('input', {type: 'number', value: materialProfit, onChange: ev => setMaterialProfit(ev.target.value), placeholder: ''})),
+                                    e('div', {className: 'field'},
+                                        e('label', {style: {display: 'flex', alignItems: 'center', gap: '6px'}},
+                                            e('input', {type: 'checkbox', checked: includeTax, onChange: ev => setIncludeTax(ev.target.checked), style: {width: '14px', height: '14px', accentColor: 'var(--material)', cursor: 'pointer'}}),
+                                            'Tax %'
+                                        ),
+                                        e('input', {type: 'number', value: materialTax, onChange: ev => setMaterialTax(ev.target.value), placeholder: '', disabled: !includeTax})
+                                    )
+                                )
+                            ),
+                            e('div', null,
+                                e('div', {className: 'param-col-head lh'}, e(IconHammer), ' Labor'),
+                                e('div', {className: 'param-fields'},
+                                    e('div', {className: 'field'}, e('label', null, 'Rate ($/hr)'), e('input', {type: 'number', value: laborRate, onChange: ev => setLaborRate(ev.target.value), placeholder: ''})),
+                                    e('div', {className: 'field'}, e('label', null, 'Overhead %'), e('input', {type: 'number', value: laborOH, onChange: ev => setLaborOH(ev.target.value), placeholder: ''})),
+                                    e('div', {className: 'field'}, e('label', null, 'Profit %'), e('input', {type: 'number', value: laborProfit, onChange: ev => setLaborProfit(ev.target.value), placeholder: ''}))
+                                )
+                            )
+                        )
+                    )
+                ),
+                results && targetPrice ? [
+                    e('div', {key: 'results-grid', className: 'results-grid'},
+                        e('div', {className: 'result-card material-card'},
+                            e('div', {className: 'result-card-head'}, e(IconBox), ' Material'),
+                            e('div', {className: 'result-rows'},
+                                e('div', {className: 'result-row key-row'}, e('span', {className: 'rl'}, 'Raw Cost'), e('span', {className: 'rv'}, fmt$(results.rawMaterialCost))),
+                                e('div', {className: 'result-row'}, e('span', {className: 'rl'}, '+ Adjustment'), e('span', {className: 'rv'}, fmt$(results.materialAdjAmt))),
+                                e('div', {className: 'result-row'}, e('span', {className: 'rl'}, '+ Overhead'), e('span', {className: 'rv'}, fmt$(results.materialOHAmt))),
+                                e('div', {className: 'result-row'}, e('span', {className: 'rl'}, '+ Profit'), e('span', {className: 'rv'}, fmt$(results.materialProfitAmt))),
+                                includeTax && e('div', {className: 'result-row'}, e('span', {className: 'rl'}, '+ Tax'), e('span', {className: 'rv'}, fmt$(results.materialTaxAmt))),
+                                e('div', {className: 'result-row subtotal-row'}, e('span', {className: 'rl'}, 'Total'), e('span', {className: 'rv'}, fmt$(results.materialTotal)))
+                            )
+                        ),
+                        e('div', {className: 'result-card labor-card'},
+                            e('div', {className: 'result-card-head'}, e(IconHammer), ' Labor'),
+                            e('div', {className: 'result-rows'},
+                                e('div', {className: 'result-row key-row'},
+                                    e('span', {className: 'rl'}, 'Hours Needed'),
+                                    e('span', {className: 'rv'},
+                                        fmtHr(results.laborHours),
+                                        results.laborHours === 0 && e('span', {style: {fontSize: '.75rem', color: 'var(--text-3)', display: 'block', textAlign: 'right'}}, 'Enter rate →')
+                                    )
+                                ),
+                                e('div', {className: 'result-row'}, e('span', {className: 'rl'}, 'Raw Cost'), e('span', {className: 'rv'}, fmt$(results.rawLaborCost))),
+                                e('div', {className: 'result-row'}, e('span', {className: 'rl'}, '+ Overhead'), e('span', {className: 'rv'}, fmt$(results.laborOHAmount))),
+                                e('div', {className: 'result-row'}, e('span', {className: 'rl'}, '+ Profit'), e('span', {className: 'rv'}, fmt$(results.laborProfitAmt))),
+                                e('div', {className: 'result-row subtotal-row'}, e('span', {className: 'rl'}, 'Subtotal'), e('span', {className: 'rv'}, fmt$(results.laborSubtotal)))
+                            )
+                        )
+                    ),
+                    e('div', {key: 'total-card', className: 'total-card'},
+                        e('div', {className: 'total-rows'},
+                            e('div', {className: 'total-line'},
+                                e('span', {className: 'tl'}, 'Combined Total'),
+                                e('span', {className: `tv ${diff <= 0.01 ? 'match' : 'mismatch'}`}, fmt$(results.combinedTotal))
+                            ),
+                            e('div', {className: 'total-divider'}),
+                            e('div', {className: 'total-line'},
+                                e('span', {className: 'tl'}, 'Target Price'),
+                                e('span', {className: 'tv neutral'}, fmt$(target))
+                            )
+                        ),
+                        diff > 0.01 && e('div', {className: 'mismatch-warn'},
+                            '⚠ Rounding difference: ',
+                            fmt$(diff)
+                        )
+                    )
+                ] : e('div', {className: 'card'},
+                    e('div', {className: 'empty-state'},
+                        e('svg', {viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5'},
+                            e('path', {d: 'M12 6v6m0 0v6m0-6h6m-6 0H6', strokeLinecap: 'round'}),
+                            e('circle', {cx: '12', cy: '12', r: '10'})
+                        ),
+                        e('p', null, 'Enter a target price above to see the full breakdown')
+                    )
+                ),
+                e('div', {className: 'footer'}, '© 2026 Shaya Birnbaum — BackCalc Beta 2.0')
+            )
         );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<BackCalc/>);
+    ReactDOM.render(e(BackCalc), document.getElementById('root'));
 </script>
 </body>
 </html>
