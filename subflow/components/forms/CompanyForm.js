@@ -50,9 +50,12 @@ export default function CompanyForm({ company, onSaved }) {
     }
     setLoading(true)
     setError('')
-    const { data: { user } } = await supabase.auth.getUser()
 
     try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) throw new Error('Unable to get user info')
+      if (!org) throw new Error('Unable to get organization info')
+
       if (company) {
         const { error } = await supabase.from('companies').update({ ...form, updated_at: new Date().toISOString() }).eq('id', company.id)
         if (error) throw new Error(error.message)
@@ -62,10 +65,12 @@ export default function CompanyForm({ company, onSaved }) {
           if (contact._isNew) {
             // New contact - insert
             const { name, email, phone, cellphone, title, address, notes } = contact
-            await supabase.from('contacts').insert({ name, email, phone, cellphone, title, address, notes, company_id: company.id, user_id: user.id, organization_id: org.id })
+            const { error: insertError } = await supabase.from('contacts').insert({ name, email, phone, cellphone, title, address, notes, company_id: company.id, user_id: user.id, organization_id: org.id })
+            if (insertError) throw new Error(`Failed to add contact "${name}": ${insertError.message}`)
           } else if (typeof contact.id === 'string') {
             // Existing contact - update
-            await supabase.from('contacts').update({ name: contact.name, email: contact.email, phone: contact.phone, cellphone: contact.cellphone, title: contact.title, address: contact.address, notes: contact.notes }).eq('id', contact.id)
+            const { error: updateError } = await supabase.from('contacts').update({ name: contact.name, email: contact.email, phone: contact.phone, cellphone: contact.cellphone, title: contact.title, address: contact.address, notes: contact.notes }).eq('id', contact.id)
+            if (updateError) throw new Error(`Failed to update contact: ${updateError.message}`)
           }
         }
 
@@ -74,12 +79,14 @@ export default function CompanyForm({ company, onSaved }) {
       } else {
         const { data, error } = await supabase.from('companies').insert({ ...form, user_id: user.id, organization_id: org.id }).select().single()
         if (error) throw new Error(error.message)
+        if (!data) throw new Error('Failed to create company')
 
         // Insert new contacts
         for (const contact of contacts) {
           if (contact._isNew || typeof contact.id !== 'string') {
             const { name, email, phone, cellphone, title, address, notes } = contact
-            await supabase.from('contacts').insert({ name, email, phone, cellphone, title, address, notes, company_id: data.id, user_id: user.id, organization_id: org.id })
+            const { error: insertError } = await supabase.from('contacts').insert({ name, email, phone, cellphone, title, address, notes, company_id: data.id, user_id: user.id, organization_id: org.id })
+            if (insertError) throw new Error(`Failed to add contact "${name}": ${insertError.message}`)
           }
         }
 
@@ -192,9 +199,10 @@ export default function CompanyForm({ company, onSaved }) {
             <input
               type="text"
               className={field}
-              placeholder="Contact name"
+              placeholder="Contact name *"
               value={newContact.name}
               onChange={e => setNewContact(p => ({ ...p, name: e.target.value }))}
+              disabled={loading}
             />
             <input
               type="text"
@@ -202,6 +210,7 @@ export default function CompanyForm({ company, onSaved }) {
               placeholder="Title"
               value={newContact.title}
               onChange={e => setNewContact(p => ({ ...p, title: e.target.value }))}
+              disabled={loading}
             />
             <input
               type="email"
@@ -209,6 +218,7 @@ export default function CompanyForm({ company, onSaved }) {
               placeholder="Email"
               value={newContact.email}
               onChange={e => setNewContact(p => ({ ...p, email: e.target.value }))}
+              disabled={loading}
             />
             <div className="grid grid-cols-2 gap-2">
               <input
@@ -217,6 +227,7 @@ export default function CompanyForm({ company, onSaved }) {
                 placeholder="Phone"
                 value={newContact.phone}
                 onChange={e => setNewContact(p => ({ ...p, phone: e.target.value }))}
+                disabled={loading}
               />
               <input
                 type="text"
@@ -224,6 +235,7 @@ export default function CompanyForm({ company, onSaved }) {
                 placeholder="Cell Phone"
                 value={newContact.cellphone}
                 onChange={e => setNewContact(p => ({ ...p, cellphone: e.target.value }))}
+                disabled={loading}
               />
             </div>
             <input
@@ -232,6 +244,7 @@ export default function CompanyForm({ company, onSaved }) {
               placeholder="Address"
               value={newContact.address}
               onChange={e => setNewContact(p => ({ ...p, address: e.target.value }))}
+              disabled={loading}
             />
             <textarea
               rows={2}
@@ -239,14 +252,15 @@ export default function CompanyForm({ company, onSaved }) {
               placeholder="Notes"
               value={newContact.notes}
               onChange={e => setNewContact(p => ({ ...p, notes: e.target.value }))}
+              disabled={loading}
             />
             <button
               type="button"
               onClick={addContact}
-              disabled={!newContact.name.trim()}
+              disabled={!newContact.name.trim() || loading}
               className="w-full bg-slate-600 hover:bg-slate-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60"
             >
-              Add Contact
+              {loading ? 'Saving...' : 'Add Contact'}
             </button>
           </div>
         </div>

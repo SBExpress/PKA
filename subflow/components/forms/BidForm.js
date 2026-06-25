@@ -64,35 +64,60 @@ export default function BidForm({ bid }) {
   }, [form.customer_id, org, supabase])
 
   async function addCustomerInline() {
-    if (!newCustomerName.trim() || !org) return
-    const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('companies').insert({ name: newCustomerName.trim(), type: 'customer', user_id: user.id, organization_id: org.id }).select().single()
-    if (data) {
+    if (!newCustomerName.trim() || !org) {
+      setError('Please enter a customer name')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data, error } = await supabase.from('companies').insert({ name: newCustomerName.trim(), type: 'customer', user_id: user.id, organization_id: org.id }).select().single()
+      if (error) throw new Error(error.message)
       const customer = { id: data.id, company_name: data.name }
       setCustomers(c => [...c, customer].sort((a, b) => a.company_name.localeCompare(b.company_name)))
       set('customer_id', data.id)
       setNewCustomerName('')
       setShowNewCustomer(false)
+    } catch (err) {
+      setError('Failed to add customer: ' + err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
   async function addContactInline() {
-    if (!form.customer_id || !org) return
-    const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('contacts').insert({
-      name: [newContactFirst.trim(), newContactLast.trim()].filter(Boolean).join(' '),
-      email: newContactEmail.trim() || null,
-      phone: newContactPhone.trim() || null,
-      company_id: form.customer_id,
-      user_id: user.id,
-      organization_id: org.id,
-    }).select().single()
-    if (data) {
+    if (!form.customer_id) {
+      setError('Please select a customer first')
+      return
+    }
+    if (!newContactFirst.trim()) {
+      setError('Contact first name is required')
+      return
+    }
+    if (!org) return
+    setLoading(true)
+    setError('')
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data, error } = await supabase.from('contacts').insert({
+        name: [newContactFirst.trim(), newContactLast.trim()].filter(Boolean).join(' '),
+        email: newContactEmail.trim() || null,
+        phone: newContactPhone.trim() || null,
+        company_id: form.customer_id,
+        user_id: user.id,
+        organization_id: org.id,
+      }).select().single()
+      if (error) throw new Error(error.message)
       const contact = { id: data.id, first_name: data.name, last_name: '' }
-      setContacts(c => [...c, contact])
+      setContacts(c => [...c, contact].sort((a, b) => a.first_name.localeCompare(b.first_name)))
       set('contact_id', data.id)
       setNewContactFirst(''); setNewContactLast(''); setNewContactEmail(''); setNewContactPhone('')
       setShowNewContact(false)
+    } catch (err) {
+      setError('Failed to add contact: ' + err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -181,8 +206,10 @@ export default function BidForm({ bid }) {
         </div>
         {showNewCustomer && (
           <div className="flex gap-2 mb-2">
-            <input className={field} placeholder="Company name" value={newCustomerName} onChange={e => setNewCustomerName(e.target.value)} />
-            <button type="button" onClick={addCustomerInline} className="bg-blue-600 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap">Add</button>
+            <input className={field} placeholder="Company name *" value={newCustomerName} onChange={e => setNewCustomerName(e.target.value)} disabled={loading} />
+            <button type="button" onClick={addCustomerInline} disabled={!newCustomerName.trim() || loading} className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap disabled:opacity-60">
+              {loading ? 'Adding...' : 'Add'}
+            </button>
           </div>
         )}
         <select className={field} value={form.customer_id} onChange={e => { set('customer_id', e.target.value); set('contact_id', '') }}>
@@ -200,16 +227,18 @@ export default function BidForm({ bid }) {
             </button>
           </div>
           {showNewContact && (
-            <div className="space-y-2 mb-2 p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-2 mb-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
               <div className="grid grid-cols-2 gap-2">
-                <input className={field} placeholder="First name" value={newContactFirst} onChange={e => setNewContactFirst(e.target.value)} />
-                <input className={field} placeholder="Last name" value={newContactLast} onChange={e => setNewContactLast(e.target.value)} />
+                <input className={field} placeholder="First name *" value={newContactFirst} onChange={e => setNewContactFirst(e.target.value)} disabled={loading} />
+                <input className={field} placeholder="Last name" value={newContactLast} onChange={e => setNewContactLast(e.target.value)} disabled={loading} />
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <input className={field} placeholder="Email" value={newContactEmail} onChange={e => setNewContactEmail(e.target.value)} />
-                <input className={field} placeholder="Phone" value={newContactPhone} onChange={e => setNewContactPhone(e.target.value)} />
+                <input className={field} placeholder="Email" value={newContactEmail} onChange={e => setNewContactEmail(e.target.value)} disabled={loading} />
+                <input className={field} placeholder="Phone" value={newContactPhone} onChange={e => setNewContactPhone(e.target.value)} disabled={loading} />
               </div>
-              <button type="button" onClick={addContactInline} className="bg-blue-600 text-white text-xs px-3 py-2 rounded-lg">Add Contact</button>
+              <button type="button" onClick={addContactInline} disabled={!newContactFirst.trim() || loading} className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-lg disabled:opacity-60">
+                {loading ? 'Adding...' : 'Add Contact'}
+              </button>
             </div>
           )}
           <select className={field} value={form.contact_id} onChange={e => set('contact_id', e.target.value)}>

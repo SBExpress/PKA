@@ -485,7 +485,12 @@ export function WireCalculatorV3() {
 
       {/* Footer */}
       <div className="text-center text-xs text-gray-500 dark:text-gray-400 pt-4">
-        <p>© 2026 Shaya Birnbaum • v3.0-Beta • Based on NEC 2023</p>
+        <p>© 2026 Shaya Birnbaum • v3.0 • Based on NEC 2023</p>
+        <p className="mt-2">
+          <a href="https://wirecalc.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+            Classic WireCalc (v1)
+          </a>
+        </p>
       </div>
     </div>
   )
