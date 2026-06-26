@@ -31,7 +31,7 @@ export default async function BidsPage() {
   const bidsWithProposals = await Promise.all((bids || []).map(async (bid) => {
     const { data: proposals } = await supabase
       .from('proposals')
-      .select('revision, total_price')
+      .select('revision, total_price, proposal_header')
       .eq('bid_request_id', bid.id)
       .order('revision', { ascending: false })
       .limit(1)
@@ -42,6 +42,7 @@ export default async function BidsPage() {
       customer_name: bid.companies?.name || '',
       latestProposalRevision: latestProposal?.revision ?? null,
       latestProposalCost: latestProposal?.total_price ?? null,
+      latestProposalHeader: latestProposal?.proposal_header ?? null,
     }
   }))
 

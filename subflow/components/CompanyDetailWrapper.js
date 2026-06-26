@@ -14,7 +14,6 @@ export default function CompanyDetailWrapper({ company: initialCompany }) {
   const { org } = useOrganization()
   const [company, setCompany] = useState(initialCompany)
   const [isEditing, setIsEditing] = useState(false)
-  const [expandedContact, setExpandedContact] = useState(null)
   const [showAddContact, setShowAddContact] = useState(false)
   const [addingContact, setAddingContact] = useState(false)
   const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', cellphone: '', title: '', address: '', notes: '' })
@@ -220,60 +219,56 @@ export default function CompanyDetailWrapper({ company: initialCompany }) {
           )}
 
           {company.contacts && company.contacts.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {company.contacts.map(contact => (
-                <div key={contact.id} className="border border-slate-100 rounded-lg p-4">
-                  <button
-                    onClick={() => setExpandedContact(expandedContact === contact.id ? null : contact.id)}
-                    className="w-full flex items-start justify-between text-left cursor-pointer hover:bg-slate-50 -m-4 p-4"
-                  >
+                <Link
+                  key={contact.id}
+                  href={`/contacts/${contact.id}`}
+                  className="border border-slate-100 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors block group"
+                >
+                  <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <p className="font-medium text-slate-800">{contact.name}</p>
+                      <p className="font-medium text-slate-800 group-hover:text-blue-600">{contact.name}</p>
                       {contact.title && <p className="text-sm text-slate-600">{contact.title}</p>}
                     </div>
-                    {expandedContact === contact.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </button>
+                  </div>
 
-                  {expandedContact === contact.id && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
-                      {contact.email && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail size={14} className="text-slate-400" />
-                          <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">{contact.email}</a>
-                        </div>
-                      )}
-                      {contact.phone && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone size={14} className="text-slate-400" />
-                          <a href={`tel:${contact.phone}`} className="text-blue-600 hover:underline">{contact.phone}</a>
-                        </div>
-                      )}
-                      {contact.cellphone && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone size={14} className="text-slate-400" />
-                          <a href={`tel:${contact.cellphone}`} className="text-blue-600 hover:underline">{contact.cellphone}</a>
-                        </div>
-                      )}
-                      {contact.address && (
-                        <div className="flex items-start gap-2 text-sm">
-                          <MapPin size={14} className="text-slate-400 mt-0.5" />
-                          <span className="text-slate-600">{contact.address}</span>
-                        </div>
-                      )}
-                      {contact.notes && (
-                        <div className="text-sm text-slate-600 pt-2 border-t border-slate-100">
-                          <p className="font-medium text-slate-700 mb-1">Notes</p>
-                          <p>{contact.notes}</p>
-                        </div>
-                      )}
-                      <div className="pt-2">
-                        <Link href={`/contacts/${contact.id}`} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
-                          Edit Contact →
-                        </Link>
+                  <div className="space-y-2">
+                    {contact.email && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail size={14} className="text-slate-400" />
+                        <a href={`mailto:${contact.email}`} onClick={e => e.stopPropagation()} className="text-blue-600 hover:underline">{contact.email}</a>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                    {contact.phone && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone size={14} className="text-slate-400" />
+                        <a href={`tel:${contact.phone}`} onClick={e => e.stopPropagation()} className="text-blue-600 hover:underline">{contact.phone}</a>
+                      </div>
+                    )}
+                    {contact.cellphone && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone size={14} className="text-slate-400" />
+                        <a href={`tel:${contact.cellphone}`} onClick={e => e.stopPropagation()} className="text-blue-600 hover:underline">{contact.cellphone}</a>
+                      </div>
+                    )}
+                    {contact.address && (
+                      <div className="flex items-start gap-2 text-sm">
+                        <MapPin size={14} className="text-slate-400 mt-0.5" />
+                        <span className="text-slate-600">{contact.address}</span>
+                      </div>
+                    )}
+                    {contact.notes && (
+                      <div className="text-sm text-slate-600 pt-2 border-t border-slate-100">
+                        <p className="font-medium text-slate-700 mb-1">Notes</p>
+                        <p>{contact.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="pt-2 text-xs text-blue-600 group-hover:text-blue-700 font-medium">
+                    View & Edit →
+                  </div>
+                </Link>
               ))}
             </div>
           ) : (

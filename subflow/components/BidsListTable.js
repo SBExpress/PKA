@@ -92,6 +92,7 @@ export default function BidsListTable({ initialBids, orgId }) {
               <th className="px-6 py-3 font-medium text-slate-500">Customer</th>
               <th className="px-6 py-3 font-medium text-slate-500">Due Date</th>
               <th className="px-6 py-3 font-medium text-slate-500">Status</th>
+              <th className="px-6 py-3 font-medium text-slate-500">Proposal Header</th>
               <th className="px-6 py-3 font-medium text-slate-500">Latest Proposal</th>
               <th className="px-6 py-3 font-medium text-slate-500">Notes</th>
             </tr>
@@ -179,6 +180,13 @@ export default function BidsListTable({ initialBids, orgId }) {
                     >
                       {bid.status?.replace('_', ' ')}
                     </span>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-slate-600">
+                  {bid.latestProposalHeader ? (
+                    <span className="text-sm font-medium text-slate-800">{bid.latestProposalHeader}</span>
+                  ) : (
+                    <span className="text-slate-400">—</span>
                   )}
                 </td>
                 <td className="px-6 py-4 text-slate-600">

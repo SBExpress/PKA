@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useOrganization } from '@/lib/useOrganization'
 import AddressAutocomplete from '@/components/AddressAutocomplete'
+import SearchableSelect from '@/components/SearchableSelect'
 import { Plus } from 'lucide-react'
 
 const field = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -212,10 +213,14 @@ export default function BidForm({ bid }) {
             </button>
           </div>
         )}
-        <select className={field} value={form.customer_id} onChange={e => { set('customer_id', e.target.value); set('contact_id', '') }}>
-          <option value="">Select a customer...</option>
-          {customers.map(c => <option key={c.id} value={c.id}>{c.company_name}</option>)}
-        </select>
+        <SearchableSelect
+          options={customers}
+          value={form.customer_id}
+          onChange={(id) => { set('customer_id', id); set('contact_id', '') }}
+          placeholder="Search customers..."
+          getLabel={(opt) => opt.company_name}
+          disabled={loading}
+        />
       </div>
 
       {form.customer_id && (
@@ -241,10 +246,14 @@ export default function BidForm({ bid }) {
               </button>
             </div>
           )}
-          <select className={field} value={form.contact_id} onChange={e => set('contact_id', e.target.value)}>
-            <option value="">Select a contact...</option>
-            {contacts.map(c => <option key={c.id} value={c.id}>{[c.first_name, c.last_name].filter(Boolean).join(' ')}</option>)}
-          </select>
+          <SearchableSelect
+            options={contacts}
+            value={form.contact_id}
+            onChange={(id) => set('contact_id', id)}
+            placeholder="Search contacts..."
+            getLabel={(opt) => [opt.first_name, opt.last_name].filter(Boolean).join(' ')}
+            disabled={loading}
+          />
         </div>
       )}
 
