@@ -393,7 +393,7 @@
             <button class="tab-button" onclick="openTab(event, 'wirecalc-v3')">WireCalc V3</button>
             <button class="tab-button" onclick="openTab(event, 'site-lighting')">Site Lighting Calc</button>
             <button class="tab-button" onclick="openTab(event, 'backcalc')">BackCalc</button>
-            <button class="tab-button" onclick="openTab(event, 'subflow')">SubFlow Dashboard</button>
+            <a href="https://pka-git-master-sb-express-projects.vercel.app/dashboard" target="_blank" class="tab-button">SubFlow Dashboard ↗</a>
         </div>
 
         <!-- Home Tab -->
@@ -431,7 +431,7 @@
                     </button>
 
                     <!-- SubFlow Dashboard -->
-                    <button class="tool-card under-construction" onclick="openTab(null, 'subflow')">
+                    <a href="https://pka-git-master-sb-express-projects.vercel.app/dashboard" target="_blank" class="tool-card under-construction" style="text-decoration: none; color: inherit;">
                         <span class="tool-icon">🚧</span>
                         <h2>SubFlow Dashboard</h2>
                         <p>Task & project hub. Manage bids, track projects, and organize all your estimating work.</p>
@@ -439,7 +439,7 @@
                         <div class="tool-footer">
                             <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
                         </div>
-                    </button>
+                    </a>
                 </div>
 
                 <div class="legacy-tools">
@@ -469,11 +469,6 @@
         <!-- BackCalc Tab -->
         <div id="backcalc" class="tab-content">
             <iframe src="https://sbexpress.github.io/backcalc/" class="tab-iframe"></iframe>
-        </div>
-
-        <!-- SubFlow Dashboard Tab -->
-        <div id="subflow" class="tab-content">
-            <iframe src="https://pka-git-master-sb-express-projects.vercel.app/dashboard" class="tab-iframe"></iframe>
         </div>
 
         <!-- Classic WireCalc Tab -->
