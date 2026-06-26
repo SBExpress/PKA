@@ -389,10 +389,10 @@
 
     <div class="container">
         <div class="tabs-header">
-            <button class="tab-button active" onclick="openTab(event, 'home')">Home</button>
-            <button class="tab-button" onclick="openTab(event, 'wirecalc-v3')">WireCalc V3</button>
-            <button class="tab-button" onclick="openTab(event, 'site-lighting')">Site Lighting Calc</button>
-            <button class="tab-button" onclick="openTab(event, 'backcalc')">BackCalc</button>
+            <button class="tab-button active" data-tab="home" onclick="openTab(event, 'home')">Home</button>
+            <button class="tab-button" data-tab="wirecalc-v3" onclick="openTab(event, 'wirecalc-v3')">WireCalc V3</button>
+            <button class="tab-button" data-tab="site-lighting" onclick="openTab(event, 'site-lighting')">Site Lighting Calc</button>
+            <button class="tab-button" data-tab="backcalc" onclick="openTab(event, 'backcalc')">BackCalc</button>
             <a href="https://pka-git-master-sb-express-projects.vercel.app/dashboard" target="_blank" class="tab-button">SubFlow Dashboard ↗</a>
         </div>
 
@@ -506,12 +506,11 @@
             if (evt) {
                 evt.currentTarget.classList.add('active');
             } else {
-                // If called from a tool card, find and activate the corresponding button
-                tabButtons.forEach(btn => {
-                    if (btn.textContent.includes(tabName.replace('-', ' '))) {
-                        btn.classList.add('active');
-                    }
-                });
+                // If called from a tool card, find and activate the corresponding button by data-tab
+                const tabButton = document.querySelector(`.tab-button[data-tab="${tabName}"]`);
+                if (tabButton) {
+                    tabButton.classList.add('active');
+                }
             }
         }
     </script>
