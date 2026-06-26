@@ -76,7 +76,9 @@ export default async function BidDetailPage({ params }) {
     supabase.from('settings').select('*').eq('organization_id', membership.organization_id).single(),
   ])
 
-  const address = bid.project_address || ''
+  // Combine project address from separate fields if project_address doesn't exist
+  const projectAddr = bid.project_address || bid.address || ''
+  const address = projectAddr ? [projectAddr, bid.address2].filter(Boolean).join(', ') : ''
   const customerName = companyName || bid.customer_company || ''
   const contactName = contactData.name || bid.customer_name || ''
   const email = contactData.email || bid.customer_email || ''

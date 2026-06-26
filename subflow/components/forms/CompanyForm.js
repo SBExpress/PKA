@@ -148,9 +148,8 @@ export default function CompanyForm({ company, onSaved }) {
         <textarea rows={2} className={field} value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Optional notes" />
       </div>
 
-      {company && (
-        <div className="pt-6 border-t border-slate-200">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Contacts</h3>
+      <div className="pt-6 border-t border-slate-200">
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">Contacts</h3>
 
           {contacts.length > 0 && (
             <div className="space-y-3 mb-6">
@@ -264,7 +263,7 @@ export default function CompanyForm({ company, onSaved }) {
             </button>
           </div>
         </div>
-      )}
+      </div>
 
       {company?.relatedBids && company.relatedBids.length > 0 && (
         <div className="pt-6 border-t border-slate-200">
