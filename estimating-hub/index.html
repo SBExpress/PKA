@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estimating Hub</title>
+    <title>Estimating Hub 2.0</title>
     <style>
         * {
             margin: 0;
@@ -16,50 +16,107 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
             color: #1a1a1a;
             min-height: 100vh;
-            padding: 60px 20px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 80px;
-            animation: slideDown 0.6s ease-out;
+        .logo-section {
+            flex-shrink: 0;
         }
 
-        h1 {
-            font-size: 3.5rem;
+        .logo {
+            height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+        }
+
+        .hub-title {
+            flex-grow: 1;
+        }
+
+        .hub-title h1 {
+            font-size: 2rem;
             font-weight: 800;
-            margin-bottom: 16px;
             background: linear-gradient(135deg, #0f172a 0%, #dc2626 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: -1px;
+            margin-bottom: 4px;
         }
 
-        .tagline {
-            font-size: 1.3rem;
+        .hub-title p {
+            font-size: 0.9rem;
             color: #64748b;
-            font-weight: 400;
-            margin-bottom: 8px;
         }
 
-        .description {
-            font-size: 1rem;
-            color: #94a3b8;
-            max-width: 600px;
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 0;
+        }
+
+        .tabs-header {
+            background: #ffffff;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            gap: 0;
+            padding: 0 20px;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            color: #1a1a1a;
+            background: #f9fafb;
+        }
+
+        .tab-button.active {
+            color: #dc2626;
+            border-bottom-color: #dc2626;
+        }
+
+        .tab-content {
+            display: none;
+            height: calc(100vh - 250px);
+            background: #ffffff;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .tab-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #ffffff;
         }
 
         .tools-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 32px;
-            margin-bottom: 80px;
+            padding: 60px 20px;
         }
 
         .tool-card {
@@ -169,50 +226,6 @@
             font-size: 1.2rem;
         }
 
-        .legacy-tools {
-            margin-top: 60px;
-            padding-top: 40px;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-        }
-
-        .legacy-tools p {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-bottom: 20px;
-        }
-
-        .tool-card.small {
-            display: inline-block;
-            width: 200px;
-            padding: 16px 12px;
-            margin: 0 auto;
-        }
-
-        .tool-card.small .tool-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .tool-card.small h2 {
-            font-size: 1rem;
-            margin-bottom: 4px;
-        }
-
-        .tool-card.small p {
-            font-size: 0.75rem;
-            margin-bottom: 12px;
-        }
-
-        .tool-card.small .tool-footer {
-            padding-top: 8px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .tool-card.small .tool-cta {
-            font-size: 0.75rem;
-        }
-
         .tool-card.under-construction {
             background: repeating-linear-gradient(
                 45deg,
@@ -252,6 +265,50 @@
             75% { transform: rotate(2deg); }
         }
 
+        .legacy-tools {
+            margin-top: 60px;
+            padding: 40px 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .legacy-tools p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .tool-card.small {
+            display: inline-block;
+            width: 200px;
+            padding: 16px 12px;
+            margin: 0 auto;
+        }
+
+        .tool-card.small .tool-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .tool-card.small h2 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .tool-card.small p {
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+        }
+
+        .tool-card.small .tool-footer {
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .tool-card.small .tool-cta {
+            font-size: 0.75rem;
+        }
 
         footer {
             text-align: center;
@@ -259,6 +316,7 @@
             border-top: 1px solid #e2e8f0;
             color: #94a3b8;
             font-size: 0.9rem;
+            background: #ffffff;
         }
 
         .footer-logo {
@@ -279,29 +337,25 @@
             margin-top: 12px;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
+            .top-bar {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
             }
 
-            .tagline {
-                font-size: 1.1rem;
+            .hub-title {
+                text-align: center;
+            }
+
+            .hub-title h1 {
+                font-size: 1.5rem;
             }
 
             .tools-grid {
                 grid-template-columns: 1fr;
                 gap: 24px;
+                padding: 40px 20px;
             }
 
             .tool-card {
@@ -315,77 +369,156 @@
             .tool-card h2 {
                 font-size: 1.5rem;
             }
+
+            .tab-content {
+                height: calc(100vh - 300px);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Estimating Hub</h1>
-            <p class="tagline">Your complete electrical estimating toolkit</p>
-            <p class="description">Fast, accurate estimates with industry-leading tools. All in one place.</p>
-        </header>
-
-        <div class="tools-grid">
-            <!-- WireCalc V3 -->
-            <a href="https://wirecalc-v3.vercel.app/" target="_blank" class="tool-card">
-                <span class="tool-icon">⚡</span>
-                <h2>WireCalc V3</h2>
-                <p>NEC compliant wire and conduit sizes based on amps and run length.</p>
-                <div class="tool-footer">
-                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
-                </div>
-            </a>
-
-            <!-- Site Lighting Calc -->
-            <a href="https://v0-site-calc.vercel.app/" target="_blank" class="tool-card">
-                <span class="tool-icon">📱</span>
-                <h2>Site Lighting Calc</h2>
-                <p>Get accurate wire sizes for site lighting based on length of run between light fixtures.</p>
-                <div class="tool-footer">
-                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
-                </div>
-            </a>
-
-            <!-- BackCalc -->
-            <a href="https://sbexpress.github.io/backcalc/" target="_blank" class="tool-card">
-                <span class="tool-icon">💰</span>
-                <h2>BackCalc</h2>
-                <p>Reverse-engineer pricing. Input a target price and break down labor vs. material costs instantly.</p>
-                <div class="tool-footer">
-                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
-                </div>
-            </a>
-
-            <!-- SubFlow Dashboard -->
-            <a href="https://pka-git-master-sb-express-projects.vercel.app/dashboard" target="_blank" class="tool-card under-construction">
-                <span class="tool-icon">🚧</span>
-                <h2>SubFlow Dashboard</h2>
-                <p>Task & project hub. Manage bids, track projects, and organize all your estimating work.</p>
-                <div class="construction-badge">Under Construction</div>
-                <div class="tool-footer">
-                    <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
-                </div>
-            </a>
+    <div class="top-bar">
+        <div class="logo-section">
+            <img src="logo.png" alt="Express Electric Inc." class="logo">
         </div>
-
-        <div class="legacy-tools">
-            <p>Legacy versions</p>
-            <a href="https://wirecalc.vercel.app/" target="_blank" class="tool-card small">
-                <span class="tool-icon">⚡</span>
-                <h2>Classic WireCalc</h2>
-                <p>Original version</p>
-                <div class="tool-footer">
-                    <span class="tool-cta">Open <span class="arrow">→</span></span>
-                </div>
-            </a>
+        <div class="hub-title">
+            <h1>Estimating Hub 2.0</h1>
+            <p>Your complete electrical estimating toolkit</p>
         </div>
-
-        <footer>
-            <img src="logo.png" alt="Express Electric Inc." class="footer-logo">
-            <p>&copy; 2026 Electrical Estimating Suite. Built for contractors, by contractors.</p>
-            <p class="copyright">&copy; 2026 Shaya Birnbaum</p>
-        </footer>
     </div>
+
+    <div class="container">
+        <div class="tabs-header">
+            <button class="tab-button active" onclick="openTab(event, 'home')">Home</button>
+            <button class="tab-button" onclick="openTab(event, 'wirecalc-v3')">WireCalc V3</button>
+            <button class="tab-button" onclick="openTab(event, 'site-lighting')">Site Lighting Calc</button>
+            <button class="tab-button" onclick="openTab(event, 'backcalc')">BackCalc</button>
+            <button class="tab-button" onclick="openTab(event, 'subflow')">SubFlow Dashboard</button>
+        </div>
+
+        <!-- Home Tab -->
+        <div id="home" class="tab-content active">
+            <div style="width: 100%; overflow-y: auto; height: 100%;">
+                <div class="tools-grid">
+                    <!-- WireCalc V3 -->
+                    <button class="tool-card" onclick="openTab(null, 'wirecalc-v3')">
+                        <span class="tool-icon">⚡</span>
+                        <h2>WireCalc V3</h2>
+                        <p>NEC compliant wire and conduit sizes based on amps and run length.</p>
+                        <div class="tool-footer">
+                            <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
+                        </div>
+                    </button>
+
+                    <!-- Site Lighting Calc -->
+                    <button class="tool-card" onclick="openTab(null, 'site-lighting')">
+                        <span class="tool-icon">📱</span>
+                        <h2>Site Lighting Calc</h2>
+                        <p>Get accurate wire sizes for site lighting based on length of run between light fixtures.</p>
+                        <div class="tool-footer">
+                            <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
+                        </div>
+                    </button>
+
+                    <!-- BackCalc -->
+                    <button class="tool-card" onclick="openTab(null, 'backcalc')">
+                        <span class="tool-icon">💰</span>
+                        <h2>BackCalc</h2>
+                        <p>Reverse-engineer pricing. Input a target price and break down labor vs. material costs instantly.</p>
+                        <div class="tool-footer">
+                            <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
+                        </div>
+                    </button>
+
+                    <!-- SubFlow Dashboard -->
+                    <button class="tool-card under-construction" onclick="openTab(null, 'subflow')">
+                        <span class="tool-icon">🚧</span>
+                        <h2>SubFlow Dashboard</h2>
+                        <p>Task & project hub. Manage bids, track projects, and organize all your estimating work.</p>
+                        <div class="construction-badge">Under Construction</div>
+                        <div class="tool-footer">
+                            <span class="tool-cta">Open Tool <span class="arrow">→</span></span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="legacy-tools">
+                    <p>Legacy versions</p>
+                    <button class="tool-card small" onclick="openTab(null, 'classic-wirecalc')">
+                        <span class="tool-icon">⚡</span>
+                        <h2>Classic WireCalc</h2>
+                        <p>Original version</p>
+                        <div class="tool-footer">
+                            <span class="tool-cta">Open <span class="arrow">→</span></span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WireCalc V3 Tab -->
+        <div id="wirecalc-v3" class="tab-content">
+            <iframe src="https://wirecalc-v3.vercel.app/" class="tab-iframe"></iframe>
+        </div>
+
+        <!-- Site Lighting Calc Tab -->
+        <div id="site-lighting" class="tab-content">
+            <iframe src="https://v0-site-calc.vercel.app/" class="tab-iframe"></iframe>
+        </div>
+
+        <!-- BackCalc Tab -->
+        <div id="backcalc" class="tab-content">
+            <iframe src="https://sbexpress.github.io/backcalc/" class="tab-iframe"></iframe>
+        </div>
+
+        <!-- SubFlow Dashboard Tab -->
+        <div id="subflow" class="tab-content">
+            <iframe src="https://pka-git-master-sb-express-projects.vercel.app/dashboard" class="tab-iframe"></iframe>
+        </div>
+
+        <!-- Classic WireCalc Tab -->
+        <div id="classic-wirecalc" class="tab-content">
+            <iframe src="https://wirecalc.vercel.app/" class="tab-iframe"></iframe>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Electrical Estimating Suite. Built for contractors, by contractors.</p>
+        <p class="copyright">&copy; 2026 Shaya Birnbaum</p>
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Hide all tab content
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show the current tab
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+
+            // Mark the button as active
+            if (evt) {
+                evt.currentTarget.classList.add('active');
+            } else {
+                // If called from a tool card, find and activate the corresponding button
+                tabButtons.forEach(btn => {
+                    if (btn.textContent.includes(tabName.replace('-', ' '))) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>
